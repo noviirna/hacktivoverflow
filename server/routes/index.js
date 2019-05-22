@@ -8,6 +8,8 @@ const { authentication, authorizationq, authorizationa } = require(`../middlewar
 
 router.post("/register", user.register);
 router.post(`/login`, user.login);
+router.get(`/get/:id`, user.getuser);
+
 
 router.get(`/questions`, question.all);
 router.get(`/answers/:id`, answer.all);

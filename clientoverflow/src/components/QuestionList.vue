@@ -26,12 +26,12 @@
                   ago
                 </small>
               </div>
-              <div>{{ question.userId }}</div>
+              <div>user {{question.userId}}</div>
             </div>
 
             <div class="d-flex justify-content-end align-items-center">
               <button
-                v-if="$store.state.isLogin"
+                v-if="$store.state.isLogin && user !== question.userId"
                 type="button"
                 class="btn btn-link btn-sm"
                 @click.prevent="seedetail(question._id)"
@@ -49,7 +49,7 @@
               </button>
               <button
                 v-if="
-                  (question.upvotes.indexOf(user) < 0 ) && $store.state.isLogin
+                  (question.upvotes.indexOf(user) < 0 ) && $store.state.isLogin&& user !== question.userId
                 "
                 type="button"
                 class="btn btn-outline-success btn-sm"
@@ -60,7 +60,7 @@
               </button>
               <button
                 v-if="
-                  question.downvotes.indexOf(user) > -1 && $store.state.isLogin
+                  question.downvotes.indexOf(user) > -1 && $store.state.isLogin && user !== question.userId
                 "
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
@@ -71,20 +71,19 @@
               </button>
               <button
                 v-if="
-                  (question.downvotes.indexOf(user) < 0 ) && $store.state.isLogin
+                  (question.downvotes.indexOf(user) < 0 ) && $store.state.isLogin && user !== question.userId
                 "
                 type="button"
                 class="btn btn-outline-danger btn-sm ml-3"
                 @click="upvoteDownvote(i, 'downvotes')"
-                
-                >
+              >
                 <i class="fas fa-arrow-down"></i>
                 {{ question.downvotes.length }}
               </button>
               <button
                 v-if="
-                  question.upvotes.indexOf(user) > -1 &&
-                    $store.state.isLogin === false
+                  (question.upvotes.indexOf(user) > -1 &&
+                    $store.state.isLogin === false) || user === question.userId
                 "
                 type="button"
                 class="btn btn-secondary btn-sm"
@@ -107,8 +106,8 @@
               </button>
               <button
                 v-if="
-                  question.downvotes.indexOf(user) > -1 &&
-                    $store.state.isLogin === false
+                  (question.downvotes.indexOf(user) > -1 &&
+                    $store.state.isLogin === false) || user == question.userId
                 "
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
@@ -147,7 +146,8 @@ export default {
   props: ["allQuestions", "isLogin"],
   data() {
     return {
-      user: localStorage.getItem("user")
+      user: localStorage.getItem("user"),
+      authors : []
     };
   },
   created() {},
@@ -159,7 +159,7 @@ export default {
     countTime(d1, d2) {
       let hours = Math.abs(d2 - d1) / 36e5;
       if (hours < 1) {
-        return `${hours[0]}${hours[1]} minute`;
+        return `${hours.toString()[0]}${hours.toString()[1]} minute`;
       } else if (hours < 24) {
         hours = Math.floor(hours);
         return `${hours} hour`;
@@ -244,7 +244,8 @@ export default {
           );
           console.log(err);
         });
-    }
+    },
+  
   }
 };
 </script>

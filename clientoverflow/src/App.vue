@@ -1,6 +1,31 @@
 <template>
   <div id="app">
     <div>
+      <!-- New Question modal -->
+      <b-modal hide-footer title="Write your question here . . ." ref="newquestion-modal">
+        <div class="form-group">
+          <label for="email">Title ...</label>
+          <input
+            v-model="title"
+            type="title"
+            class="form-control"
+            id="title"
+            aria-describedby="emailHelp"
+            placeholder="Question Title . . ."
+          >
+        </div>
+        <div class="form-group">
+          <label for="description">Question ...</label>
+          <textarea
+            v-model="description"
+            type="description"
+            class="form-control"
+            id="description"
+            placeholder="Your Question . . ."
+          ></textarea>
+        </div>
+        <b-button @click="submitquestion" class="mt-2" variant="outline-success" block>Submit Question</b-button>
+      </b-modal>
       <!-- Login modal -->
       <b-modal hide-footer title="Log in to Participate" ref="login-modal">
         <div class="form-group">
@@ -65,12 +90,11 @@
         <router-link to="/" class="navbar-brand">HacktivOverflow</router-link>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <!-- Left aligned nav items -->
-        <b-navbar-nav class="my-auto">
+        <b-navbar-nav class="my-auto" v-if="isLogin">
           <small>
-            <router-link to="/question">
-              New Question
-              <i class="fas fa-plus"></i>
-            </router-link>
+            <a @click="showNewQuestionModal">
+              New Question <i class="fas fa-plus"></i>
+            </a>
           </small>
         </b-navbar-nav>
         <b-collapse id="nav-collapse" is-nav>
@@ -90,9 +114,6 @@
               <!-- Using 'button-content' slot -->
               <template slot="button-content">user</template>
               <b-dropdown-item>
-                <router-link to="/question">My Questions</router-link>
-              </b-dropdown-item>
-              <b-dropdown-item>
                 <a href @click.prevent="logout">Sign Out</a>
               </b-dropdown-item>
             </b-nav-item-dropdown>
@@ -101,7 +122,7 @@
       </b-navbar>
     </div>
     <br>
-    <router-view @detail="detailquestion"></router-view>
+    <router-view :key="$store.state.isLogin || $store.state.questions" @detail="detailquestion"></router-view>
   </div>
 </template>
 
@@ -115,6 +136,8 @@ export default {
   name: "app",
   data() {
     return {
+      title: "",
+      description : "",
       username: "",
       email: "",
       password: "",
@@ -164,15 +187,16 @@ export default {
           })
           .catch((err) => {
             this.hideLoginModal();
+            swal.fire("password / email wrong")
             console.log(err)
-            // if (err.response.status === 400) {
-            //   swal.fire("error", err.response.data.message, "error");
-            // } else {
-            //   swal.fire("error", "internal server error", "error");
-            // }
-            // console.log(response);
           });
       }
+    },
+    showNewQuestionModal(){
+      this.$refs["newquestion-modal"].show();
+    },
+    hideNewQuestionModal(){
+      this.$refs["newquestion-modal"].hide();
     },
     showRegisterModal() {
       this.$refs["register-modal"].show();
@@ -224,15 +248,52 @@ export default {
       this.$store.dispatch("isLogin", false);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      this.$router.go(0)
+      this.$router.replace("/")
     },
     detailquestion(e) {
       console.log("di app");
       this.openQuestion(e);
     },
     openQuestion(e) {
-      let url = "/answer/" + e;
+      let url = "/question/" + e;
       this.$router.push(url);
+    },
+    getAllQuestions() {
+      this.$axios({
+        method: "get",
+        url: "http://localhost:3000/questions"
+      })
+        .then(({ data }) => {
+          this.allQuestions = data;
+          this.$store.dispatch("questions", data);
+        })
+        .catch(({ response }) => {
+          console.log(response);
+        });
+    },
+    submitquestion(){
+      this.$axios({
+        method : "post",
+        url : "http://localhost:3000/question",
+        headers : {
+          token : localStorage.getItem('token'),
+          id : localStorage.getItem('user')
+        },
+        data : {
+          title: this.title,
+          description : this.description,
+          upvotes: [],
+          downvotes: [],
+          userId : localStorage.getItem('user')
+        }
+      }).then(({data})=>{
+        this.title = ""
+        this.description = ""
+        this.hideNewQuestionModal()
+        this.getAllQuestions();
+      }).catch(err=>{
+        console.log(err)
+      })
     }
   }
 };

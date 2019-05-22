@@ -34,6 +34,21 @@ class cUser {
         console.log("login gagal => ", err);
       });
   }
+
+  static getuser(req, res) {
+    User.findById(req.params.id)
+      .then(found => {
+        if (found) {
+          res.send(found.username);
+        } else {
+          res.send(null);
+        }
+      })
+      .catch(err => {
+        res.status(500).json({ message: `internal server error` });
+        console.log("login gagal => ", err);
+      });
+  }
 }
 
 module.exports = cUser;

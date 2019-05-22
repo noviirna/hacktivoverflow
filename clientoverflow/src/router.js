@@ -30,14 +30,14 @@ export default new Router({
         }
       ]
     },
-    {
-      path: "/answer/:id",
-      name: "answer",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "answer" */ "./views/Answer.vue")
-    }
+    // {
+    //   path: "/answer/:id",
+    //   name: "answer",
+    //   // route level code-splitting
+    //   // this generates a separate chunk (about.[hash].js) for this route
+    //   // which is lazy-loaded when the route is visited.
+    //   component: () =>
+    //     import(/* webpackChunkName: "answer" */ "./views/Answer.vue")
+    // }
   ]
 });
