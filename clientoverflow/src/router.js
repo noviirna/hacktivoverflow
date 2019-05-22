@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
+import Detail from "./components/QuestionDetail";
 
 Vue.use(Router);
 
@@ -14,31 +15,29 @@ export default new Router({
       component: Home
     },
     {
-      path: "/login",
-      name: "login",
+      path: "/question",
+      name: "question",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "login" */ "./views/LoginRegister.vue")
-    },
-    {
-      path: "/answers",
-      name: "answers",
-      component: () => {
-        import(/* webpackChunkName: "answers" */ "./views/MyAnswers.vue");
-      },
+        import(/* webpackChunkName: "question" */ "./views/Question.vue"),
       children: [
         {
-          path: "id",
-          component: () => {
-            import(/* webpackChunkName: "details" */ "./views/QuestionDetails.vue");
-          }
+          path: ":id",
+          name: "questiondetail",
+          component: Detail
         }
       ]
     },
     {
-      path: "/questions",
-      name: "questions",
+      path: "/answer/:id",
+      name: "answer",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "questions" */ "./views/MyQuestions.vue")
+        import(/* webpackChunkName: "answer" */ "./views/Answer.vue")
     }
   ]
 });

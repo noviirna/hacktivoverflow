@@ -1,14 +1,51 @@
 <template>
   <div class="home">
-    List Questions
+    <QuestionList
+      @detailquestion="seedetails"
+      :allQuestions="allQuestions"
+      :isLogin="isLogin"
+    ></QuestionList>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-
+import QuestionList from "@/components/QuestionList.vue";
 export default {
   name: "home",
-  components: {}
+  data() {
+    return {
+      isLogin: this.$store.state.isLogin,
+      allQuestions: [],
+      viewOne: "",
+    };
+  },
+  components: {
+    QuestionList
+  },
+  created() {
+    this.getAllQuestions()
+  },
+  mounted() {
+  },
+  methods: {
+    getAllQuestions() {
+      this.$axios({
+        method: "get",
+        url: "http://localhost:3000/questions"
+      })
+        .then(({ data }) => {
+          this.allQuestions = data;
+          this.$store.dispatch("questions", data);
+        })
+        .catch(({ response }) => {
+          console.log(response);
+        });
+    },
+    seedetails(e) {
+      console.log("di home");
+      this.$emit("detail", e);
+    }
+  }
 };
 </script>

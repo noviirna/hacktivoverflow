@@ -3,6 +3,30 @@ const Schema = mongoose.Schema;
 const { hashPassword } = require("../helpers/password");
 
 const UserSchema = new Schema({
+  username: {
+    type: String,
+    validate : [
+      {
+        validator: function(username) {
+          return this.model("User")
+            .findOne({
+              username
+            })
+            .then(result => {
+              if (result) {
+                return false;
+              } else {
+                return true;
+              }
+            })
+            .catch(err => {
+              return false;
+            });
+        },
+        message: "that username already been used"
+      }
+    ]
+  },
   email: {
     type: String,
     validate: [

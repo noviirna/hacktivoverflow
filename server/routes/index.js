@@ -9,15 +9,17 @@ const { authentication, authorizationq, authorizationa } = require(`../middlewar
 router.post("/register", user.register);
 router.post(`/login`, user.login);
 
-router.use(authentication);
-
 router.get(`/questions`, question.all);
-router.post(`/question`, question.create);
+router.get(`/answers/:id`, answer.all);
+
 router.get(`/question/:id`, question.detail);
+
+
+router.use(authentication);
+router.post(`/question`, question.create);
 router.put(`/question/:id`, question.update);
 router.delete(`/question/:id`, authorizationq, question.delete);
 
-router.get(`/answers/:id`, answer.all);
 router.post(`/answer`, answer.create);
 router.get(`/answer/:id`, answer.detail);
 router.put(`/answer/:id`, answer.update);
