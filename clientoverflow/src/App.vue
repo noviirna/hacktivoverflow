@@ -1,6 +1,31 @@
 <template>
   <div id="app">
     <div>
+      <!-- Edit modal -->
+      <b-modal hide-footer title="Write your question here . . ." ref="editquestion-modal">
+        <div class="form-group">
+          <label for="email">Title ...</label>
+          <input
+            v-model="title"
+            type="title"
+            class="form-control"
+            id="title"
+            aria-describedby="emailHelp"
+            placeholder="Question Title . . ."
+          >
+        </div>
+        <div class="form-group">
+          <label for="description">Question ...</label>
+          <textarea
+            v-model="description"
+            type="description"
+            class="form-control"
+            id="description"
+            placeholder="Your Question . . ."
+          ></textarea>
+        </div>
+        <b-button @click="editquestion" class="mt-2" variant="outline-success" block>Edit Question</b-button>
+      </b-modal>
       <!-- New Question modal -->
       <b-modal hide-footer title="Write your question here . . ." ref="newquestion-modal">
         <div class="form-group">
@@ -24,7 +49,12 @@
             placeholder="Your Question . . ."
           ></textarea>
         </div>
-        <b-button @click="submitquestion" class="mt-2" variant="outline-success" block>Submit Question</b-button>
+        <b-button
+          @click="submitquestion"
+          class="mt-2"
+          variant="outline-success"
+          block
+        >Submit Question</b-button>
       </b-modal>
       <!-- Login modal -->
       <b-modal hide-footer title="Log in to Participate" ref="login-modal">
@@ -93,7 +123,8 @@
         <b-navbar-nav class="my-auto" v-if="isLogin">
           <small>
             <a @click="showNewQuestionModal">
-              New Question <i class="fas fa-plus"></i>
+              New Question
+              <i class="fas fa-plus"></i>
             </a>
           </small>
         </b-navbar-nav>
@@ -122,7 +153,12 @@
       </b-navbar>
     </div>
     <br>
-    <router-view :key="$store.state.isLogin || $store.state.questions" @detail="detailquestion"></router-view>
+    <router-view
+      :key="$store.state.isLogin || $store.state.questions"
+      @edit="edit"
+      @detail="detailquestion"
+      @del="del"
+    ></router-view>
   </div>
 </template>
 
@@ -137,7 +173,7 @@ export default {
   data() {
     return {
       title: "",
-      description : "",
+      description: "",
       username: "",
       email: "",
       password: "",
@@ -153,6 +189,71 @@ export default {
   },
   computed: mapState(["isLogin"]),
   methods: {
+    edit(e) {
+      this.showEditModal();
+      this.title = e.title;
+      this.description = e.description;
+      this.questionId = e._id;
+    },
+    del(e){
+      this.questionId = e._id
+      this.$axios({
+        method: "delete",
+        url: "http://localhost:3000/question/" + this.questionId,
+        headers: {
+          token: localStorage.getItem("token"),
+          id: localStorage.getItem("user")
+        }
+      })
+        .then(({ data }) => {
+          this.questionId = ""
+          this.getAllQuestions();
+        })
+        .catch(err => {
+          swal.fire(
+            `Error : ${err.response.status}`,
+            `${err.response.data}`,
+            "success"
+          );
+          console.log(JSON.stringify(err));
+        });
+    },
+    editquestion() {
+      console.log(this.$route.id);
+      this.$axios({
+        method: "put",
+        url: "http://localhost:3000/question/" + this.questionId,
+        headers: {
+          token: localStorage.getItem("token"),
+          id: localStorage.getItem("user")
+        },
+        data: {
+          title: this.title,
+          description: this.description
+        }
+      })
+        .then(({ data }) => {
+          this.title = "";
+          this.description = "";
+          this.getAllQuestions();
+          console.log(data);
+          this.hideEditModall();
+        })
+        .catch(err => {
+          swal.fire(
+            `Error : ${err.response.status}`,
+            `${err.response.data}`,
+            "success"
+          );
+          console.log(JSON.stringify(err));
+        });
+    },
+    showEditModal() {
+      this.$refs["editquestion-modal"].show();
+    },
+    hideEditModall() {
+      this.$refs["editquestion-modal"].hide();
+    },
     checklogin() {
       if (localStorage.getItem("token")) {
         this.$store.dispatch("isLogin", true);
@@ -185,17 +286,17 @@ export default {
             this.password = "";
             this.hideLoginModal();
           })
-          .catch((err) => {
+          .catch(err => {
             this.hideLoginModal();
-            swal.fire("password / email wrong")
-            console.log(err)
+            swal.fire("password / email wrong");
+            console.log(err);
           });
       }
     },
-    showNewQuestionModal(){
+    showNewQuestionModal() {
       this.$refs["newquestion-modal"].show();
     },
-    hideNewQuestionModal(){
+    hideNewQuestionModal() {
       this.$refs["newquestion-modal"].hide();
     },
     showRegisterModal() {
@@ -248,14 +349,14 @@ export default {
       this.$store.dispatch("isLogin", false);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      this.$router.replace("/")
+      this.$router.replace("/");
     },
     detailquestion(e) {
       console.log("di app");
       this.openQuestion(e);
     },
     openQuestion(e) {
-      let url = "/question/" + e;
+      let url = "/answer/" + e;
       this.$router.push(url);
     },
     getAllQuestions() {
@@ -271,29 +372,32 @@ export default {
           console.log(response);
         });
     },
-    submitquestion(){
+    submitquestion() {
       this.$axios({
-        method : "post",
-        url : "http://localhost:3000/question",
-        headers : {
-          token : localStorage.getItem('token'),
-          id : localStorage.getItem('user')
+        method: "post",
+        url: "http://localhost:3000/question",
+        headers: {
+          token: localStorage.getItem("token"),
+          id: localStorage.getItem("user")
         },
-        data : {
+        data: {
           title: this.title,
-          description : this.description,
+          description: this.description,
           upvotes: [],
           downvotes: [],
-          userId : localStorage.getItem('user')
+          userId: localStorage.getItem("user")
         }
-      }).then(({data})=>{
-        this.title = ""
-        this.description = ""
-        this.hideNewQuestionModal()
-        this.getAllQuestions();
-      }).catch(err=>{
-        console.log(err)
       })
+        .then(({ data }) => {
+          console.log(data);
+          this.title = "";
+          this.description = "";
+          this.hideNewQuestionModal();
+          this.getAllQuestions();
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   }
 };

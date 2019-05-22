@@ -2,6 +2,8 @@
   <div class="home">
     <QuestionList
       @detailquestion="seedetails"
+      @edit="edit"
+      @del="del"
       :allQuestions="allQuestions"
       :isLogin="isLogin"
     ></QuestionList>
@@ -17,17 +19,16 @@ export default {
     return {
       isLogin: this.$store.state.isLogin,
       allQuestions: [],
-      viewOne: "",
+      viewOne: ""
     };
   },
   components: {
     QuestionList
   },
   created() {
-    this.getAllQuestions()
+    this.getAllQuestions();
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     getAllQuestions() {
       this.$axios({
@@ -45,6 +46,12 @@ export default {
     seedetails(e) {
       console.log("di home");
       this.$emit("detail", e);
+    },
+    edit(e){
+      this.$emit("edit", e);
+    },
+    del(e){
+      this.$emit('del', e)
     }
   }
 };

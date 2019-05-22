@@ -5,7 +5,11 @@
         <li class="list-group-item">
           <div class="d-flex justify-content-end">{{ new Date(question.createdAt).toDateString() }}</div>
           <h4>
-            <a href @click.prevent="seedetail(question._id)" class="nav-link">{{ question.title }}</a>
+            <a href @click.prevent="seedetail(question._id)" class="nav-link">
+              {{
+              question.title
+              }}
+            </a>
           </h4>
           <p>
             {{
@@ -20,13 +24,11 @@
             <div>
               <div class="sm">
                 <small>
-                  {{
-                  countTime(new Date(), new Date(question.createdAt))
-                  }}
+                  {{ countTime(new Date(), new Date(question.createdAt)) }}
                   ago
                 </small>
               </div>
-              <div>user {{question.userId}}</div>
+              <div>user {{ question.userId }}</div>
             </div>
 
             <div class="d-flex justify-content-end align-items-center">
@@ -49,7 +51,9 @@
               </button>
               <button
                 v-if="
-                  (question.upvotes.indexOf(user) < 0 ) && $store.state.isLogin&& user !== question.userId
+                  question.upvotes.indexOf(user) < 0 &&
+                    $store.state.isLogin &&
+                    user !== question.userId
                 "
                 type="button"
                 class="btn btn-outline-success btn-sm"
@@ -60,7 +64,9 @@
               </button>
               <button
                 v-if="
-                  question.downvotes.indexOf(user) > -1 && $store.state.isLogin && user !== question.userId
+                  question.downvotes.indexOf(user) > -1 &&
+                    $store.state.isLogin &&
+                    user !== question.userId
                 "
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
@@ -71,7 +77,9 @@
               </button>
               <button
                 v-if="
-                  (question.downvotes.indexOf(user) < 0 ) && $store.state.isLogin && user !== question.userId
+                  question.downvotes.indexOf(user) < 0 &&
+                    $store.state.isLogin &&
+                    user !== question.userId
                 "
                 type="button"
                 class="btn btn-outline-danger btn-sm ml-3"
@@ -83,7 +91,8 @@
               <button
                 v-if="
                   (question.upvotes.indexOf(user) > -1 &&
-                    $store.state.isLogin === false) || user === question.userId
+                    $store.state.isLogin === false) ||
+                    user === question.userId
                 "
                 type="button"
                 class="btn btn-secondary btn-sm"
@@ -107,7 +116,8 @@
               <button
                 v-if="
                   (question.downvotes.indexOf(user) > -1 &&
-                    $store.state.isLogin === false) || user == question.userId
+                    $store.state.isLogin === false) ||
+                    user == question.userId
                 "
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
@@ -128,6 +138,20 @@
                 <i class="fas fa-arrow-down"></i>
                 {{ question.downvotes.length }}
               </button>
+              <button
+                v-if="
+                user === question.userId"
+                @click="edit(question)"
+                type="button"
+                class="btn btn-sm ml-3"
+              >Edit</button>
+              <button
+                v-if="
+                user === question.userId"
+                @click="del(question)"
+                type="button"
+                class="btn btn-danger btn-sm ml-3"
+              >delete</button>
             </div>
           </div>
         </li>
@@ -147,7 +171,7 @@ export default {
   data() {
     return {
       user: localStorage.getItem("user"),
-      authors : []
+      authors: []
     };
   },
   created() {},
@@ -245,7 +269,26 @@ export default {
           console.log(err);
         });
     },
-  
+    edit(data) {
+      this.$emit("edit", data);
+    },
+    del(data) {
+      swal
+        .fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+        })
+        .then(result => {
+          if (result.value) {
+            this.$emit("del", data);  
+          }
+        });
+    }
   }
 };
 </script>
