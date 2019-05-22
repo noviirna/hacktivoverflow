@@ -14,6 +14,9 @@ export default new Vuex.Store({
     },
     questions: (store, data) => {
       store.questions = data;
+    },
+    onequestion: (store, data) => {
+      store.onequestion = data;
     }
   },
   actions: {
@@ -22,6 +25,9 @@ export default new Vuex.Store({
     },
     questions: ({ commit }, data) => {
       commit("questions", data);
+    },
+    onequestion: ({ commit }, data) => {
+      commit("onequestion", data);
     }
   }
 });

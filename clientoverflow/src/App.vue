@@ -2,7 +2,7 @@
   <div id="app">
     <div>
       <!-- Edit modal -->
-      <b-modal hide-footer title="Write your question here . . ." ref="editquestion-modal">
+      <b-modal hide-footer title="Edit your question here . . ." ref="editquestion-modal">
         <div class="form-group">
           <label for="email">Title ...</label>
           <input
@@ -143,7 +143,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown right v-if="isLogin">
               <!-- Using 'button-content' slot -->
-              <template slot="button-content">user</template>
+              <template slot="button-content">Account</template>
               <b-dropdown-item>
                 <a href @click.prevent="logout">Sign Out</a>
               </b-dropdown-item>
@@ -154,7 +154,7 @@
     </div>
     <br>
     <router-view
-      :key="$store.state.isLogin || $store.state.questions"
+      :key="$store.state.isLogin || $store.state.questions || $store.state.onequestion"
       @edit="edit"
       @detail="detailquestion"
       @del="del"
@@ -238,6 +238,8 @@ export default {
           this.getAllQuestions();
           console.log(data);
           this.hideEditModall();
+          this.$router.push("/");
+          swal.fire("updated","question updated","success")
         })
         .catch(err => {
           swal.fire(
@@ -285,6 +287,7 @@ export default {
             this.email = "";
             this.password = "";
             this.hideLoginModal();
+            swal.fire("logged in")
           })
           .catch(err => {
             this.hideLoginModal();
@@ -313,7 +316,7 @@ export default {
           method: "post",
           url: "http://localhost:3000/register",
           data: {
-            username: this.user,
+            username: this.username,
             email: this.email,
             password: this.password
           }
@@ -350,13 +353,15 @@ export default {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       this.$router.replace("/");
+      swal.fire("logged out")
     },
     detailquestion(e) {
       console.log("di app");
       this.openQuestion(e);
     },
     openQuestion(e) {
-      let url = "/answer/" + e;
+      let url = "/answer/" + e._id;
+      this.$store.dispatch('onequestion',e)
       this.$router.push(url);
     },
     getAllQuestions() {

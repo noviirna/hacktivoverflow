@@ -5,7 +5,7 @@
         <li class="list-group-item">
           <div class="d-flex justify-content-end">{{ new Date(question.createdAt).toDateString() }}</div>
           <h4>
-            <a href @click.prevent="seedetail(question._id)" class="nav-link">
+            <a href @click.prevent="seedetail(question)" class="nav-link">
               {{
               question.title
               }}
@@ -36,7 +36,7 @@
                 v-if="$store.state.isLogin && user !== question.userId"
                 type="button"
                 class="btn btn-link btn-sm"
-                @click.prevent="seedetail(question._id)"
+                @click.prevent="seedetail(question)"
               >Answer This</button>
               <button
                 v-if="
@@ -177,8 +177,8 @@ export default {
   created() {},
   components: {},
   methods: {
-    seedetail(id) {
-      this.$emit("detailquestion", id);
+    seedetail(e) {
+      this.$emit("detailquestion", e);
     },
     countTime(d1, d2) {
       let hours = Math.abs(d2 - d1) / 36e5;
