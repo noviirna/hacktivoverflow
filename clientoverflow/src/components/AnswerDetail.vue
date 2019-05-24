@@ -14,7 +14,7 @@
         >
       </div>
       <div class="form-group">
-        <label for="description">Question ...</label>
+        <label for="description">Answer ...</label>
         <textarea
           v-model="answerdescription"
           type="description"
@@ -26,6 +26,32 @@
       <b-button @click="submitanswer" class="mt-2" variant="outline-success" block>Submit Answer</b-button>
     </b-modal>
     <br>
+    <!-- Edit Answer modal -->
+    <b-modal hide-footer title="Write your answer here . . ." ref="editanswer-modal">
+      <div class="form-group">
+        <label for="email">Title ...</label>
+        <input
+          v-model="answertitle"
+          type="title"
+          class="form-control"
+          id="title"
+          aria-describedby="emailHelp"
+          placeholder="Answer Title . . ."
+        >
+      </div>
+      <div class="form-group">
+        <label for="description">Answer ...</label>
+        <textarea
+          v-model="answerdescription"
+          type="description"
+          class="form-control"
+          id="description"
+          placeholder="Your Answer . . ."
+        ></textarea>
+      </div>
+      <b-button @click="submitupdate(updtarget)" class="mt-2" variant="outline-success" block>Update Answer</b-button>
+    </b-modal>
+    <!-- container question-->
     <div class="container">
       <div class="container my-3">
         <h3>The question . . .</h3>
@@ -73,7 +99,7 @@
                 "
                 type="button"
                 class="btn btn-success btn-sm"
-                @click="upvoteDownvote(i, 'upvotes')"
+                @click="ud(question, 'upvotes')"
               >
                 <i class="fas fa-arrow-up"></i>
                 {{ question.upvotes.length }}
@@ -86,7 +112,7 @@
                 "
                 type="button"
                 class="btn btn-outline-success btn-sm"
-                @click="upvoteDownvote(i, 'upvotes')"
+                @click="ud(question, 'upvotes')"
               >
                 <i class="fas fa-arrow-up"></i>
                 {{ question.upvotes.length }}
@@ -99,7 +125,7 @@
                 "
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
-                @click="upvoteDownvote(i, 'downvotes')"
+                @click="ud(question, 'downvotes')"
               >
                 <i class="fas fa-arrow-down"></i>
                 {{ question.downvotes.length }}
@@ -112,7 +138,7 @@
                 "
                 type="button"
                 class="btn btn-outline-danger btn-sm ml-3"
-                @click="upvoteDownvote(i, 'downvotes')"
+                @click="ud(question, 'downvotes')"
               >
                 <i class="fas fa-arrow-down"></i>
                 {{ question.downvotes.length }}
@@ -167,25 +193,12 @@
                 <i class="fas fa-arrow-down"></i>
                 {{ question.downvotes.length }}
               </button>
-              <button
-                v-if="
-                user === question.userId"
-                @click="edit(question)"
-                type="button"
-                class="btn btn-sm ml-3"
-              >Edit</button>
-              <button
-                v-if="
-                user === question.userId"
-                @click="del(question)"
-                type="button"
-                class="btn btn-danger btn-sm ml-3"
-              >delete</button>
             </div>
           </div>
         </li>
       </ul>
     </div>
+    <!-- container answer -->
     <div class="container">
       <div class="container my-3">
         <h3>The answers . . .</h3>
@@ -324,7 +337,7 @@
               <button
                 v-if="
                 user === answer.userId"
-                @click="editanswer()"
+                @click="editanswer(answer)"
                 type="button"
                 class="btn btn-sm ml-3"
               >Edit</button>
@@ -354,7 +367,8 @@ export default {
       question: {},
       answers: [],
       answertitle: "",
-      answerdescription: ""
+      answerdescription: "",
+      updtarget: ""
     };
   },
   created() {
@@ -366,7 +380,84 @@ export default {
     this.getAllAnswer();
   },
   methods: {
+    submitupdate(e){
+      e.title = this.answertitle
+      e.description = this.answerdescription
+      this.updateAnswer(e)
+    },
+    editanswer(e){
+    console.log("munculin modal")
+    this.updtarget = e
+    this.answertitle = e.title,
+    this.answerdescription = e.description
+    this.showeditform();
+    },
+    showeditform() {
+      this.$refs["editanswer-modal"].show();
+    },
+    hideeditform() {
+      this.$refs["editanswer-modal"].hide();
+    },
+    ud(e, type){
+      let exist = false;
+      let cancel = "";
+      console.log(e)
+      e[type].forEach((ud, j) => {
+        if (ud === localStorage.getItem("user")) {
+          exist = true;
+          cancel = j;
+        }
+      });
+      if (exist === false) {
+        e[type].push(localStorage.getItem("user"));
+        let opexist = false;
+        let opcancel = "";
+        let op = "";
+        if (type === "upvotes") {
+          e.downvotes.forEach((ud, j) => {
+            if (ud === localStorage.getItem("user")) {
+              opexist = true;
+              opcancel = j;
+              op = "downvotes";
+            }
+          });
+        } else if (type === "downvotes") {
+          e.upvotes.forEach((ud, j) => {
+            if (ud === localStorage.getItem("user")) {
+              opexist = true;
+              opcancel = j;
+              op = "upvotes";
+            }
+          });
+        }
+        if (opexist) {
+          e[op].splice(opcancel, 1);
+        }
+      } else {
+        e[type].splice(cancel, 1);
+      }
+      this.updateQuestion(e);
+    },
+    updateQuestion(updValue) {
+      this.$axios({
+        method: "put",
+        url: "http://localhost:3000/question/" + updValue._id,
+        headers: {
+          token: localStorage.getItem("token"),
+          id: localStorage.getItem("user")
+        },
+        data: updValue
+      })
+        .then(({ data }) => {
+          console.log(data);
+        })
+        .catch(err => {
+          this.getQuestion()
+          this.getAllAnswer()
+        });
+    },
     delanswer(e) {
+      console.log("delete")
       swal
         .fire({
           title: "Are you sure?",
@@ -521,7 +612,7 @@ export default {
       } else {
         answer[type].splice(cancel, 1);
       }
-      this.updateAnswer(Question);
+      this.updateAnswer(answer);
     },
     updateAnswer(updValue) {
       this.$axios({
@@ -536,6 +627,7 @@ export default {
         .then(({ data }) => {
           console.log(data);
           this.getAllAnswer();
+          this.hideeditform()
         })
         .catch(err => {
           swal.fire(

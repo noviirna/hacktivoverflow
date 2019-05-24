@@ -143,7 +143,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown right v-if="isLogin">
               <!-- Using 'button-content' slot -->
-              <template slot="button-content">user</template>
+              <template slot="button-content">user {{username}}</template>
               <b-dropdown-item>
                 <a href @click.prevent="logout">Sign Out</a>
               </b-dropdown-item>
@@ -173,7 +173,7 @@ export default {
     return {
       title: "",
       description: "",
-      username: "",
+      username: localStorage.getItem('user'),
       email: "",
       password: "",
       questionId: ""
