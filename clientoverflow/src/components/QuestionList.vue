@@ -178,20 +178,21 @@ export default {
   components: {},
   methods: {
     seedetail(id) {
-      this.$emit("detailquestion", id);
+      this.$router.push(`/answer/${id}`)
+
     },
     countTime(d1, d2) {
       let hours = Math.abs(d2 - d1) / 36e5;
       if (hours < 1) {
-        return `${hours.toString()[0]}${hours.toString()[1]} minute`;
+        return `${hours.toString()[2]}${hours.toString()[3]} minute`;
       } else if (hours < 24) {
         hours = Math.floor(hours);
         return `${hours} hour`;
       } else if (hours < 168) {
-        hours = Math.abs(168 / hours);
+        hours = Math.floor(Math.abs(168 / hours));
         return `${hours} day`;
       } else if (hours < 672) {
-        hours = Math.abs(672 / hours);
+        hours = Math.floor(Math.abs(672 / hours));
         return `${hours} week`;
       }
     },
@@ -285,7 +286,7 @@ export default {
         })
         .then(result => {
           if (result.value) {
-            this.$emit("del", data);  
+            this.$emit("del", data);
           }
         });
     }

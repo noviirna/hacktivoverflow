@@ -1,6 +1,7 @@
 <template>
   <div class="answer">
-    <h1>This is a answer page</h1>
+    <h2>Answer this question . . .</h2>
     <router-view></router-view>
+    
   </div>
 </template>

@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <QuestionList
-      @detailquestion="seedetails"
       @edit="edit"
       @del="del"
       :allQuestions="allQuestions"
@@ -42,10 +41,6 @@ export default {
         .catch(({ response }) => {
           console.log(response);
         });
-    },
-    seedetails(e) {
-      console.log("di home");
-      this.$emit("detail", e);
     },
     edit(e){
       this.$emit("edit", e);

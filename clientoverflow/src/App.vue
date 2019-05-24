@@ -154,9 +154,8 @@
     </div>
     <br>
     <router-view
-      :key="$store.state.isLogin || $store.state.questions"
+      :key="$store.state.isLogin"
       @edit="edit"
-      @detail="detailquestion"
       @del="del"
     ></router-view>
   </div>
@@ -219,7 +218,6 @@ export default {
         });
     },
     editquestion() {
-      console.log(this.$route.id);
       this.$axios({
         method: "put",
         url: "http://localhost:3000/question/" + this.questionId,
@@ -351,14 +349,6 @@ export default {
       localStorage.removeItem("user");
       this.$router.replace("/");
     },
-    detailquestion(e) {
-      console.log("di app");
-      this.openQuestion(e);
-    },
-    openQuestion(e) {
-      let url = "/answer/" + e;
-      this.$router.push(url);
-    },
     getAllQuestions() {
       this.$axios({
         method: "get",
@@ -394,6 +384,7 @@ export default {
           this.description = "";
           this.hideNewQuestionModal();
           this.getAllQuestions();
+          this.$router.push("/")
         })
         .catch(err => {
           console.log(err);

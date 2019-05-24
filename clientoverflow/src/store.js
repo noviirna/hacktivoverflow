@@ -14,7 +14,10 @@ export default new Vuex.Store({
     },
     questions: (store, data) => {
       store.questions = data;
-    }
+    },
+    questiondetail: (store, data) => {
+      store.questiondetail = data;
+    },
   },
   actions: {
     isLogin: ({ commit }, data) => {
@@ -22,6 +25,9 @@ export default new Vuex.Store({
     },
     questions: ({ commit }, data) => {
       commit("questions", data);
+    },
+    questiondetail: ({ commit }, data) => {
+      commit("questiondetail", data);
     }
   }
 });

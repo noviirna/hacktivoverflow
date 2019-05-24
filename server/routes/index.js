@@ -16,15 +16,14 @@ router.get(`/answers/:id`, answer.all);
 
 router.get(`/question/:id`, question.detail);
 
-
 router.use(authentication);
+router.get(`/answer/:id`, answer.detail);
 router.post(`/question`, question.create);
 router.put(`/question/:id`, question.update);
 router.delete(`/question/:id`, authorizationq, question.delete);
 
-router.post(`/answer`, answer.create);
-router.get(`/answer/:id`, answer.detail);
 router.put(`/answer/:id`, answer.update);
+router.post(`/answer`, answer.create);
 router.delete(`/answer/:id`, authorizationa, answer.delete);
 
 module.exports = router;
