@@ -198,7 +198,7 @@ export default {
       this.questionId = e._id
       this.$axios({
         method: "delete",
-        url: "http://localhost:3000/question/" + this.questionId,
+        url: "http://35.238.179.168/question/" + this.questionId,
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")
@@ -220,7 +220,7 @@ export default {
     editquestion() {
       this.$axios({
         method: "put",
-        url: "http://localhost:3000/question/" + this.questionId,
+        url: "http://35.238.179.168/question/" + this.questionId,
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")
@@ -269,7 +269,7 @@ export default {
       } else {
         this.$axios({
           method: "post",
-          url: "http://localhost:3000/login",
+          url: "http://35.238.179.168/login",
           data: {
             email: this.email,
             password: this.password
@@ -309,7 +309,7 @@ export default {
       } else {
         this.$axios({
           method: "post",
-          url: "http://localhost:3000/register",
+          url: "http://35.238.179.168/register",
           data: {
             username: this.user,
             email: this.email,
@@ -352,7 +352,7 @@ export default {
     getAllQuestions() {
       this.$axios({
         method: "get",
-        url: "http://localhost:3000/questions"
+        url: "http://35.238.179.168/questions"
       })
         .then(({ data }) => {
           this.allQuestions = data;
@@ -365,7 +365,7 @@ export default {
     submitquestion() {
       this.$axios({
         method: "post",
-        url: "http://localhost:3000/question",
+        url: "http://35.238.179.168/question",
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")

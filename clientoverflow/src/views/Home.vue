@@ -32,7 +32,7 @@ export default {
     getAllQuestions() {
       this.$axios({
         method: "get",
-        url: "http://localhost:3000/questions"
+        url: "http://35.238.179.168/questions"
       })
         .then(({ data }) => {
           this.allQuestions = data;

@@ -251,7 +251,7 @@ export default {
     updateQuestion(updValue) {
       this.$axios({
         method: "put",
-        url: "http://localhost:3000/question/" + updValue._id,
+        url: "http://35.238.179.168/question/" + updValue._id,
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")

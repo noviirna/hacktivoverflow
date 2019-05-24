@@ -441,7 +441,7 @@ export default {
     updateQuestion(updValue) {
       this.$axios({
         method: "put",
-        url: "http://localhost:3000/question/" + updValue._id,
+        url: "http://35.238.179.168/question/" + updValue._id,
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")
@@ -472,7 +472,7 @@ export default {
           if (result.value) {
             this.$axios({
               method: "delete",
-              url: "http://localhost:3000/answer/" + e._id,
+              url: "http://35.238.179.168/answer/" + e._id,
               headers: {
                 token: localStorage.getItem("token"),
                 id: localStorage.getItem("user")
@@ -499,7 +499,7 @@ export default {
       console.log("submit nih");
       this.$axios({
         method: "post",
-        url: "http://localhost:3000/answer",
+        url: "http://35.238.179.168/answer",
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")
@@ -550,7 +550,7 @@ export default {
       console.log(this.$route.params.id);
       this.$axios({
         method: "get",
-        url: "http://localhost:3000/question/" + this.$route.params.id
+        url: "http://35.238.179.168/question/" + this.$route.params.id
       })
         .then(({ data }) => {
           console.log(data);
@@ -563,7 +563,7 @@ export default {
     getAllAnswer() {
       this.$axios({
         method: "get",
-        url: "http://localhost:3000/answers/" + this.$route.params.id
+        url: "http://35.238.179.168/answers/" + this.$route.params.id
       })
         .then(({ data }) => {
           console.log(data);
@@ -617,7 +617,7 @@ export default {
     updateAnswer(updValue) {
       this.$axios({
         method: "put",
-        url: "http://localhost:3000/answer/" + updValue._id,
+        url: "http://35.238.179.168/answer/" + updValue._id,
         headers: {
           token: localStorage.getItem("token"),
           id: localStorage.getItem("user")
