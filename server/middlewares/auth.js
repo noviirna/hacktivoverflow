@@ -1,11 +1,12 @@
 const jwt = require(`jsonwebtoken`);
 const Question = require(`../models/question`);
-const Answer = require(`../models/answer`)
+const Answer = require(`../models/answer`);
 const { decodeToken } = require(`../helpers/token`);
 
 function authentication(req, res, next) {
   try {
     let decoded = jwt.verify(req.headers.token, process.env.SECRET_JWT);
+    req.user = decoded;
     next();
   } catch (err) {
     res.status(403).json({

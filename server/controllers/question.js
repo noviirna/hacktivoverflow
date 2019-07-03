@@ -4,6 +4,7 @@ class Controller {
   static create(req, res) {
     Question.create(req.body)
       .then(created => {
+        created.userId = req.user;
         res.status(201).json(created);
       })
       .catch(err => {
@@ -40,6 +41,9 @@ class Controller {
 
   static all(req, res) {
     Question.find()
+      .populate("userId")
+      .populate("upvotes")
+      .populate("downvotes")
       .then(founds => {
         if (founds.length >= 1) {
           let asc = founds.sort((a, b) => {
