@@ -9,6 +9,7 @@ const QuestionSchema = new Schema(
     },
     title: String,
     description: String,
+    tags: [String],
     upvotes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     downvotes: [{ type: Schema.Types.ObjectId, ref: "User" }]
   },

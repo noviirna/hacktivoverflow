@@ -11,15 +11,24 @@ export default new Vuex.Store({
     serverURL: "http://localhost:3000"
   },
   mutations: {
-    SET_ISLOGIN: (store, data) => {
-      store.isLogin = data.status;
-      store.user = data.user;
+    SET_ISLOGIN: (state, data) => {
+      state.isLogin = data.status;
+      state.user = data.user;
     },
-    SET_QUESTIONS: (store, data) => {
-      store.questions = data;
+    SET_QUESTIONS: (state, data) => {
+      state.questions = data;
     },
-    questiondetail: (store, data) => {
-      store.questiondetail = data;
+    UNSHIFT_QUESTION: (state, data) => {
+      state.questions.unshift(data);
+    },
+    SPLICE_QUESTION: (state, data) => {
+      state.questions.splice(data, 1);
+    },
+    CHANGE_A_QUESTION: (state, data) => {
+      state.questions = data;
+    },
+    questiondetail: (state, data) => {
+      state.questiondetail = data;
     }
   },
   actions: {
@@ -32,11 +41,12 @@ export default new Vuex.Store({
         commit("SET_ISLOGIN", { status: false, user });
       }
     },
+    // DONE
     registering: ({ state }, data) => {
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
-          url: state.serverURL + "/register",
+          url: state.serverURL + "/users/register",
           data
         })
           .then(({ data }) => {
@@ -47,14 +57,16 @@ export default new Vuex.Store({
           });
       });
     },
+    // DONE
     loggingIn: ({ commit, state }, data) => {
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
-          url: state.serverURL + "/login",
+          url: state.serverURL + "/users/login",
           data
         })
           .then(({ data }) => {
+            console.log(JSON.stringify(data));
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
             commit("SET_ISLOGIN", { status: true, user: data.user });
@@ -65,14 +77,17 @@ export default new Vuex.Store({
           });
       });
     },
-    FETCH_ALL_QUESTIONS({ commit }) {
+    // DONE
+    FETCH_ALL_QUESTIONS({ commit, state }) {
       axios({
         method: "get",
-        url: "http://35.238.179.168/questions"
+        url: state.serverURL + "/questions?sort=desc",
+        headers: {
+          token: localStorage.token
+        }
       })
         .then(({ data }) => {
           commit("SET_QUESTIONS", data);
-          console.log(data);
         })
         .catch(({ response }) => {
           console.log(response);
@@ -85,20 +100,72 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
-          url: state.serverURL + "/question",
+          url: state.serverURL + "/questions",
           headers: {
             token: localStorage.token
           },
           data: data
         })
           .then(({ data }) => {
-            let questions = state.questions;
-            questions.push(data);
-            commit("SET_QUESTIONS", questions);
+            commit("UNSHIFT_QUESTION", data);
             resolve(data);
           })
           .catch(err => {
             reject(err);
+          });
+      });
+    },
+    DELETE_QUESTION: ({ commit, state }, targetId) => {
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "DELETE",
+          url: state.serverURL + "/questions/" + targetId,
+          headers: {
+            token: localStorage.token
+          }
+        })
+          .then(() => {
+            let i = undefined;
+            state.questions.forEach((question, index) => {
+              if (question._id == targetId) {
+                i = index;
+              }
+            });
+            commit("SPLICE_QUESTION", i);
+            resolve();
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    UPDATE_QUESTION: ({ commit, state }, question) => {
+      return new Promise(function(resolve, reject) {
+        axios({
+          method: "PUT",
+          url: state.serverURL + "/questions/" + question._id,
+          headers: {
+            token: localStorage.getItem("token")
+          },
+          data: question.data
+        })
+          .then(({ data }) => {
+            let updated = [];
+            state.questions.forEach(q => {
+              updated.push(q);
+            });
+
+            updated.forEach((q, i) => {
+              if (q._id == data._id) {
+                updated[i] = data;
+                updated[i].userId = state.user;
+              }
+            });
+            commit("CHANGE_A_QUESTION", updated);
+            resolve();
+          })
+          .catch(error => {
+            reject(error);
           });
       });
     }

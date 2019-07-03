@@ -1,30 +1,49 @@
 const Question = require(`../models/question`);
 
 class Controller {
-  static create(req, res) {
+  static create(req, res, next) {
     Question.create(req.body)
       .then(created => {
-        created.userId = req.user;
-        res.status(201).json(created);
+        let userId = {
+          _id: req.user._id,
+          username: req.user.username,
+          email: req.user.email
+        };
+        let {
+          _id,
+          upvotes,
+          downvotes,
+          title,
+          description,
+          createdAt,
+          updatedAt,
+          tags
+        } = created;
+        res.status(201).json({
+          _id,
+          upvotes,
+          downvotes,
+          userId,
+          title,
+          description,
+          createdAt,
+          updatedAt,
+          userId,
+          tags
+        });
       })
-      .catch(err => {
-        res.status(500).json({ message: `internal server error` });
-        console.log("create error => ", err);
-      });
+      .catch(next);
   }
 
-  static delete(req, res) {
+  static delete(req, res, next) {
     Question.findByIdAndDelete(req.params.id)
       .then(deleted => {
         res.status(200).json(deleted);
       })
-      .catch(err => {
-        res.status(500).json({ message: `internal server error` });
-        console.log("delete error => ", err);
-      });
+      .catch(next);
   }
 
-  static detail(req, res) {
+  static detail(req, res, next) {
     Question.findById(req.params.id)
       .then(found => {
         if (found) {
@@ -33,13 +52,10 @@ class Controller {
           res.status(400).json({ message: `that is not exists` });
         }
       })
-      .catch(err => {
-        res.status(500).json({ message: `internal server error` });
-        console.log("find one error => ", err);
-      });
+      .catch(next);
   }
 
-  static all(req, res) {
+  static all(req, res, next) {
     Question.find()
       .populate("userId")
       .populate("upvotes")
@@ -49,30 +65,42 @@ class Controller {
           let asc = founds.sort((a, b) => {
             return a.createdAt - b.createdAt;
           });
-          if (req.query.sort === "desc") {
-            res.status(200).json(asc.reverse());
-          } else {
+          //
+          asc.forEach(question => {
+            let { _id, username, email } = question.userId;
+            question.userId = { _id, username, email };
+            question.upvotes.forEach(upvote => {
+              let { _id, username, email } = upvote;
+              upvote = { _id, username, email };
+            });
+            //
+            question.downvotes.forEach(downvote => {
+              let { _id, username, email } = downvote;
+              downvote = { _id, username, email };
+            });
+          });
+          //
+          if (req.query.sort === "asc") {
             res.status(200).json(asc);
+          } else {
+            res.status(200).json(asc.reverse());
           }
         } else {
-          res.status(200).json(founds);
+          next({ code: 404, mesage: "no question found" });
         }
       })
-      .catch(err => {
-        res.status(500).json({ message: `internal server error` });
-        console.log("find many error => ", err);
-      });
+      .catch(next);
   }
 
-  static update(req, res) {
-    Question.findByIdAndUpdate(req.params.id, req.body)
+  static update(req, res, next) {
+    Question.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      useFindAndModify: false
+    })
       .then(updated => {
         res.status(200).json(updated);
       })
-      .catch(err => {
-        res.status(500).json({ message: `internal server error err` });
-        console.log("update error => ", err);
-      });
+      .catch(next);
   }
 }
 

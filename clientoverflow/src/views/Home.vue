@@ -1,20 +1,30 @@
 <template>
-  <div class="home">
-    <div v-for="question in questions" :key="question._id">
-      <QuestionList
-        @edit="$emit('edit')"
-        @del="$emit('del')"
-        :question="question"
-        :isLogin="isLogin"
-      ></QuestionList>
+  <div class="col-12 h-100">
+    <div class="row d-flex justify-content-center my-2">
+      <h1>Hacktiv Overflow</h1>
+      <div v-if="isLogin" class="col-12 d-flex justify-content-start my-1">
+        <p class="mr-2">Watched Tags :</p>
+        <p v-if="user.watchedTags.length < 1">No watched Tags found</p>
+        <span class="mr-2" v-for="tag in user.watchedTags" :key="tag">{{tag}}</span>
+      </div>
+    </div>
+    <div class="col-12">
+      <div v-for="question in questions" :key="question._id">
+        <QuestionList
+          @editquestion="$emit('editquestion', question)"
+          @delquestion="$emit('delquestion', question)"
+          :item="question"
+          :type="'question'"
+        ></QuestionList>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import QuestionList from "@/components/QuestionList.vue";
-import { mapState, mapActions } from "vuex";
+import QuestionList from "@/components/ItemList.vue";
+import { mapState } from "vuex";
 export default {
   name: "home",
   data() {
@@ -26,14 +36,9 @@ export default {
     QuestionList
   },
   computed: {
-    ...mapState(["questions", "isLogin"])
+    ...mapState(["questions", "isLogin", "user"])
   },
-  created() {
-    this.FETCH_ALL_QUESTIONS();
-  },
-  mounted() {},
-  methods: {
-    ...mapActions(["FETCH_ALL_QUESTIONS"])
-  }
+  created() {},
+  mounted() {}
 };
 </script>

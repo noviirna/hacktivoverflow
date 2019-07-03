@@ -1,15 +1,19 @@
 const jwt = require(`jsonwebtoken`);
 const Question = require(`../models/question`);
 const Answer = require(`../models/answer`);
-const { decodeToken } = require(`../helpers/token`);
 
 function authentication(req, res, next) {
+  console.log("here 1");
+
   try {
     let decoded = jwt.verify(req.headers.token, process.env.SECRET_JWT);
     req.user = decoded;
+    console.log("here 2");
     next();
   } catch (err) {
-    res.status(403).json({
+    console.log("here 3");
+    next({
+      code: 403,
       message: `authentication failed, you have to login first`
     });
   }
@@ -18,20 +22,22 @@ function authentication(req, res, next) {
 function authorizationq(req, res, next) {
   let condition = {
     _id: req.params.id,
-    userId: req.headers.id
+    userId: req.user._id
   };
   Question.findOne(condition)
     .then(result => {
       if (result) {
         next();
       } else {
-        res.status(403).json({
+        next({
+          code: 403,
           message: `authorization failed, you have no rights to access this`
         });
       }
     })
     .catch(err => {
-      res.status(500).json({
+      next({
+        code: 403,
         message: `Internal server error`
       });
     });
@@ -40,20 +46,22 @@ function authorizationq(req, res, next) {
 function authorizationa(req, res, next) {
   let condition = {
     _id: req.params.id,
-    userId: req.headers.id
+    userId: req.user._id
   };
   Answer.findOne(condition)
     .then(result => {
       if (result) {
         next();
       } else {
-        res.status(403).json({
+        next({
+          code: 403,
           message: `authorization failed, you have no rights to access this`
         });
       }
     })
     .catch(err => {
-      res.status(500).json({
+      next({
+        code: 403,
         message: `Internal server error`
       });
     });

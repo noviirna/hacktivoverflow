@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <!-- Edit modal -->
-    <b-modal hide-footer title="Write your question here . . ." ref="editquestion-modal">
+    <!-- Question Modal -->
+    <b-modal hide-footer :title="modal" ref="questionmodal">
       <div class="form-group">
-        <label for="email">Title ...</label>
+        <label for="email">Question Title</label>
         <input
           v-model="title"
           type="title"
@@ -14,7 +14,7 @@
         />
       </div>
       <div class="form-group">
-        <label for="description">Question ...</label>
+        <label for="description">Question Description</label>
         <textarea
           v-model="description"
           type="description"
@@ -23,32 +23,42 @@
           placeholder="Your Question . . ."
         ></textarea>
       </div>
-      <b-button @click="editquestion" class="mt-2" variant="outline-success" block>Edit Question</b-button>
-    </b-modal>
-    <!-- New Question modal -->
-    <b-modal hide-footer title="Write your question here . . ." ref="newquestion-modal">
       <div class="form-group">
-        <label for="email">Title ...</label>
+        <label for="tag">Question Tags</label>
+        <br />
         <input
-          v-model="title"
-          type="title"
+          v-model="tag"
+          type="text"
           class="form-control"
-          id="title"
-          aria-describedby="emailHelp"
-          placeholder="Question Title . . ."
+          id="tag"
+          placeholder="Insert Question Tag"
+          @keyup.space="addTag"
+          @keyup.enter="addTag"
         />
+        <small
+          class="my-1"
+        >type the tags and press space or enter to add tag, click the tag to remove it</small>
+        <span
+          v-for="tag in tags"
+          :key="tag"
+          @click="removeTag(tag)"
+          class="badge badge-secondary mr-2"
+        >{{tag}}</span>
       </div>
-      <div class="form-group">
-        <label for="description">Question ...</label>
-        <textarea
-          v-model="description"
-          type="description"
-          class="form-control"
-          id="description"
-          placeholder="Your Question . . ."
-        ></textarea>
-      </div>
-      <b-button @click="submitquestion" class="mt-2" variant="outline-success" block>Submit Question</b-button>
+      <b-button
+        v-if="modal ==='Write new question, ' + user.username"
+        @click="submitquestion"
+        class="mt-2 form-control"
+        variant="outline-success"
+        block
+      >Submit Question</b-button>
+      <b-button
+        v-if="modal ==='Edit this question: ' + questionId"
+        @click="editquestion"
+        class="mt-2 form-control"
+        variant="outline-success"
+        block
+      >Edit Question</b-button>
     </b-modal>
     <!-- Login modal -->
     <b-modal hide-footer title="Log in to Participate" ref="login-modal">
@@ -104,12 +114,13 @@
       </div>
       <b-button @click="register" class="mt-2" variant="outline-success" block>Register</b-button>
     </b-modal>
+    <!-- navbar -->
     <navbar
-      @navnewquestion="showNewQuestionModal"
+      @navnewquestion="showQuestionModal"
       @navlogin="showLoginModal"
       @navregister="showRegisterModal"
     />
-    <router-view :key="$store.state.isLogin" @edit="showEditModal" @del="del" />
+    <router-view @editquestion="showQuestionModal" @delquestion="deletequestion" />
   </div>
 </template>
 
@@ -123,53 +134,53 @@ export default {
   components: { navbar },
   data() {
     return {
+      modal: "",
       title: "",
       description: "",
       username: "",
       email: "",
       password: "",
-      questionId: ""
+      questionId: "",
+      tags: [],
+      tag: ""
     };
   },
   created() {
     this.$store.dispatch("checkLogin");
+    this.$store.dispatch("FETCH_ALL_QUESTIONS");
   },
   mounted() {},
-  computed: mapState(["isLogin", "user"]),
+  computed: {
+    ...mapState(["isLogin", "user"])
+  },
   methods: {
-    del(e) {
-      this.questionId = e._id;
-      this.$axios({
-        method: "delete",
-        url: "http://35.238.179.168/question/" + this.questionId,
-        headers: {
-          token: localStorage.getItem("token"),
-          id: localStorage.getItem("user")
-        }
-      })
-        .then(({ data }) => {
-          this.questionId = "";
-          this.$store.dispatch("FETCH_ALL_QUESTIONS");
-        })
-        .catch(err => {
-          swal.fire(
-            `Error : ${err.response.status}`,
-            `${err.response.data}`,
-            "success"
-          );
-          console.log(JSON.stringify(err));
-        });
+    showQuestionModal(emit) {
+      if (!emit) {
+        this.modal = "Write new question, " + this.user.username;
+        this.title = "";
+        this.description = "";
+        this.questionId = "";
+        this.tags = [];
+        this.tag = "";
+      } else {
+        this.modal = "Edit this question: " + emit._id;
+        this.title = emit.title;
+        this.description = emit.description;
+        this.questionId = emit._id;
+        this.tags = emit.tags;
+        this.tag = "";
+      }
+      this.$refs["questionmodal"].show();
     },
-    // MODAL RELATED
-    showEditModal(emit) {
-      this.title = emit.title;
-      this.description = emit.description;
-      this.questionId = emit._id;
-      this.$refs["editquestion-modal"].show();
+    hideQuestionModal() {
+      this.title = "";
+      this.description = "";
+      this.questionId = "";
+      this.tags = [];
+      this.tag = "";
+      this.$refs["questionmodal"].hide();
     },
-    hideEditModall() {
-      this.$refs["editquestion-modal"].hide();
-    },
+
     showLoginModal() {
       this.$refs["login-modal"].show();
     },
@@ -179,12 +190,7 @@ export default {
       this.email = "";
       this.password = "";
     },
-    showNewQuestionModal() {
-      this.$refs["newquestion-modal"].show();
-    },
-    hideNewQuestionModal() {
-      this.$refs["newquestion-modal"].hide();
-    },
+
     showRegisterModal() {
       this.$refs["register-modal"].show();
     },
@@ -195,7 +201,35 @@ export default {
       this.password = "";
     },
 
-    // REGISTER LOGIN
+    // TAG RELATED =>
+    addTag() {
+      if (this.tag !== " ") {
+        if (this.tags.indexOf(this.tag) === -1) {
+          if (this.tag.length > 12 || this.tag.length < 3) {
+            swal.fire("Tags should consists of 3 - 12 characters");
+          } else {
+            if (this.tags.length == 5) {
+              swal.fire("Maximal tags is 5 tag per item");
+            } else {
+              this.tags.push(this.tag.toLowerCase());
+            }
+          }
+        }
+      }
+      this.tag = "";
+    },
+    removeTag(tag) {
+      let arr = this.tags;
+      let index = "";
+      for (let i = 0; i < this.tags.length; i++) {
+        if (this.tags[i] == tag) {
+          index = i;
+        }
+      }
+      this.tags.splice(index, 1);
+    },
+
+    // USER RELATED => FUNGSINYA DI STORE
     register() {
       let { username, email, password } = this;
       if (username == "" || email == "" || password == "") {
@@ -241,20 +275,42 @@ export default {
       }
     },
 
+    // QUESTION RELATED => FUNGSI NYA DI STORE
     submitquestion() {
+      if (this.title !== "" || this.description !== "" || this.tags !== []) {
+        this.$store
+          .dispatch("SUBMIT_QUESTION", {
+            userId: this.user._id,
+            title: this.title,
+            description: this.description,
+            tags: this.tags,
+            upvotes: [],
+            downvotes: []
+          })
+          .then(() => {
+            this.hideQuestionModal();
+            swal.fire("success submitting new question");
+          })
+          .catch(err => {
+            console.log(err);
+            console.log(err.response.data);
+            swal.fire("sorry", err.response.data.message, "error");
+          });
+      }
+    },
+    editquestion() {
       this.$store
-        .dispatch("SUBMIT_QUESTION", {
-          userId: this.user._id,
-          title: this.title,
-          description: this.description,
-          upvotes: [],
-          downvotes: []
+        .dispatch("UPDATE_QUESTION", {
+          _id: this.questionId,
+          data: {
+            title: this.title,
+            description: this.description,
+            tags: this.tags
+          }
         })
         .then(() => {
-          this.title = "";
-          this.description = "";
-          this.hideNewQuestionModal();
-          swal.fire("success submitting new question");
+          swal.fire("that question has been updated!");
+          this.hideQuestionModal();
         })
         .catch(err => {
           console.log(err);
@@ -262,32 +318,18 @@ export default {
           swal.fire("sorry", err.response.data.message, "error");
         });
     },
-    editquestion() {
-      this.$axios({
-        method: "put",
-        url: "http://35.238.179.168/question/" + this.questionId,
-        headers: {
-          token: localStorage.getItem("token"),
-          id: localStorage.getItem("user")
-        },
-        data: {
-          title: this.title,
-          description: this.description
-        }
-      })
-        .then(({ data }) => {
-          this.title = "";
-          this.description = "";
-          this.$store.dispatch("FETCH_ALL_QUESTIONS");
-          this.hideEditModall();
+    deletequestion(emit) {
+      this.$store
+        .dispatch("DELETE_QUESTION", emit._id)
+        .then(res => {
+          swal.fire(
+            `successfully delete your question with id : ${emit._id} and titled ${emit.title}`
+          );
         })
         .catch(err => {
-          swal.fire(
-            `Error : ${err.response.status}`,
-            `${err.response.data}`,
-            "success"
-          );
-          console.log(JSON.stringify(err));
+          console.log(err);
+          console.log(err.response.data);
+          swal.fire("sorry", err.response.data.message, "error");
         });
     }
   }

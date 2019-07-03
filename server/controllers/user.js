@@ -16,9 +16,9 @@ class Controller {
       .then(found => {
         if (found) {
           if (comparePassword(req.body.password, found.password) === true) {
-            let { _id, email, username } = found;
+            let { _id, email, username, watchedTags } = found;
             let token = generateToken({ _id, email, username });
-            let user = { _id, email, username };
+            let user = { _id, email, username, watchedTags };
             res.status(200).json({ token, user });
           } else {
             next({ code: 400, message: `password / email wrong` });

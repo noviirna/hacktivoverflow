@@ -15,16 +15,13 @@ export default new Router({
       component: Home
     },
     {
-      path: "/answer",
-      name: "answer",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
+      path: "/question/:id",
+      name: "question",
       component: () =>
         import(/* webpackChunkName: "question" */ "./views/Answer.vue"),
       children: [
         {
-          path: ":id",
+          path: ":answerId",
           name: "answerdetail",
           component: Detail
         }

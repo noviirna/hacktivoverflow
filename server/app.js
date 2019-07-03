@@ -6,9 +6,11 @@ const express = require("express"),
   mongoose = require("mongoose"),
   cors = require("cors"),
   routes = require("./routes/index"),
-  errHandler = require("./middlewares/errHandler");
+  errHandler = require("./middlewares/errHandler"),
+  morgan = require("morgan");
 
 app.use(cors());
+app.use(morgan("dev"));
 app.use(
   express.urlencoded({
     extended: false
