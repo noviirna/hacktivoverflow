@@ -5,7 +5,10 @@ const { hashPassword } = require("../helpers/password");
 const UserSchema = new Schema({
   username: {
     type: String,
-    validate : [
+    required: [true, "username is required"],
+    minlength: [4, "username must consist of 4-16 character"],
+    maxlength: [16, "username must consist of 4-16 character"],
+    validate: [
       {
         validator: function(username) {
           return this.model("User")
@@ -24,6 +27,16 @@ const UserSchema = new Schema({
             });
         },
         message: "that username already been used"
+      },
+      {
+        validator: function(username) {
+          if (username.match(/^[A-Za-z0-9]+$/)) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        message: "username cannot be having any special character"
       }
     ]
   },
@@ -60,9 +73,11 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    minlength: [8, "password must be 8 character"],
+    minlength: [8, "password must consist of 8 - 16 character"],
+    maxlength: [16, "password must consist of 8 - 16 character"],
     required: true
-  }
+  },
+  watchedTags: [String]
 });
 
 UserSchema.pre("save", function(next) {

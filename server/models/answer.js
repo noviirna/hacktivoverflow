@@ -13,8 +13,8 @@ const AnswerSchema = new Schema(
     },
     title: String,
     description: String,
-    upvotes: Array,
-    downvotes: Array
+    upvotes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    downvotes: [{ type: Schema.Types.ObjectId, ref: "User" }]
   },
   { timestamps: true }
 );

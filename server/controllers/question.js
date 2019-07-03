@@ -1,6 +1,6 @@
 const Question = require(`../models/question`);
 
-class cQuestion {
+class Controller {
   static create(req, res) {
     Question.create(req.body)
       .then(created => {
@@ -72,4 +72,4 @@ class cQuestion {
   }
 }
 
-module.exports = cQuestion;
+module.exports = Controller;
