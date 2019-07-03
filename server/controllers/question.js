@@ -23,7 +23,6 @@ class Controller {
           _id,
           upvotes,
           downvotes,
-          userId,
           title,
           description,
           createdAt,
@@ -58,8 +57,6 @@ class Controller {
   static all(req, res, next) {
     Question.find()
       .populate("userId")
-      .populate("upvotes")
-      .populate("downvotes")
       .then(founds => {
         if (founds.length >= 1) {
           let asc = founds.sort((a, b) => {
@@ -69,15 +66,6 @@ class Controller {
           asc.forEach(question => {
             let { _id, username, email } = question.userId;
             question.userId = { _id, username, email };
-            question.upvotes.forEach(upvote => {
-              let { _id, username, email } = upvote;
-              upvote = { _id, username, email };
-            });
-            //
-            question.downvotes.forEach(downvote => {
-              let { _id, username, email } = downvote;
-              downvote = { _id, username, email };
-            });
           });
           //
           if (req.query.sort === "asc") {
