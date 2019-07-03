@@ -33,6 +33,7 @@ app.use(express.json({ limit: "2mb" }));
 
 let DB_TARGET = "";
 if (process.env.NODE_ENV == "prod") {
+  DB_TARGET = process.env.MONGODB_ATLAS;
 } else {
   DB_TARGET = process.env.MONGODB_ATLAS;
   // DB_TARGET = process.env.MONGODB_LOCAL + "-" + process.env.NODE_ENV;
@@ -89,27 +90,30 @@ var task = cron.schedule(
               const mailOptions = {
                 from: "info@noviirna-overflow.site", // sender address
                 to: `${user.email}`, // list of receivers
-                subject: `Question Of The Week - ${new Date().toISOString}`, // Subject line
+                subject: `Question Of The Week - ${new Date().toDateString}`, // Subject line
                 html: emailCont
               };
-              transporter
-                .sendMail(mailOptions)
-                .then(sent => {
-                  var qotw_job = queue
-                    .create("qotw", {
-                      title: `QOTW email on monday at 8.00 am sent to ${
-                        user.email
-                      }"`
-                    })
-                    .save(err => {
-                      if (err) {
-                        console.log(err);
-                      }
-                    });
-                })
-                .catch(err => {
-                  console.log(err);
-                });
+              async function sentmail() {
+                await transporter
+                  .sendMail(mailOptions)
+                  .then(sent => {
+                    var qotw_job = queue
+                      .create("qotw", {
+                        title: `QOTW email on monday at 8.00 am sent to ${
+                          user.email
+                        }"`
+                      })
+                      .save(err => {
+                        if (err) {
+                          console.log(err);
+                        }
+                      });
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  });
+              }
+              sentmail();
             });
           })
           .catch(err => {
