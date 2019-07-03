@@ -127,7 +127,7 @@
                 class="bt btn-secondary n btn-sm ml-3"
               >Edit</button>
               <button
-                v-if="item.userId._id === user._id"
+                v-if="item.userId._id === user._id && this.type=='question'"
                 @click="del(item)"
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
