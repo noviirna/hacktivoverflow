@@ -4,7 +4,7 @@
       <h1>Hacktiv Overflow</h1>
       <div v-if="isLogin" class="col-12 d-flex justify-content-start my-1">
         <p class="mr-2">Watched Tags :</p>
-        <p v-if="user.watchedTags.length < 1">No watched Tags found</p>
+        <p v-if="user.watchedTags.length < 1">No watched Tags found, to add watched tag, just click on the tag on this question feeds</p>
         <span class="mr-2" v-for="tag in user.watchedTags" :key="tag">{{tag}}</span>
       </div>
     </div>
@@ -13,6 +13,7 @@
         <QuestionList
           @editquestion="$emit('editquestion', question)"
           @delquestion="$emit('delquestion', question)"
+          
           :item="question"
           :type="'question'"
         ></QuestionList>

@@ -120,7 +120,7 @@
       @navlogin="showLoginModal"
       @navregister="showRegisterModal"
     />
-    <router-view @editquestion="showQuestionModal" @delquestion="deletequestion" />
+    <router-view @editquestion="showQuestionModal" />
   </div>
 </template>
 
@@ -311,20 +311,6 @@ export default {
         .then(() => {
           swal.fire("that question has been updated!");
           this.hideQuestionModal();
-        })
-        .catch(err => {
-          console.log(err);
-          console.log(err.response.data);
-          swal.fire("sorry", err.response.data.message, "error");
-        });
-    },
-    deletequestion(emit) {
-      this.$store
-        .dispatch("DELETE_QUESTION", emit._id)
-        .then(res => {
-          swal.fire(
-            `successfully delete your question with id : ${emit._id} and titled ${emit.title}`
-          );
         })
         .catch(err => {
           console.log(err);

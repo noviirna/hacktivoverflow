@@ -3,9 +3,13 @@
     <div class="container">
       <ul class="list-group">
         <li class="list-group-item">
-          <div class="d-flex justify-content-end">{{ new Date(item.createdAt).toDateString() }}</div>
+          <div class="d-flex justify-content-end">{{ new Date(item.createdAt) }}</div>
           <h4>
-            <a href @click.prevent="seedetail(item._id)" class="nav-link">{{ item.title }}</a>
+            <a
+              href
+              @click.prevent="$router.push(`/question/${item._id}`)"
+              class="nav-link"
+            >{{ item.title }}</a>
           </h4>
           <p>
             {{
@@ -25,47 +29,55 @@
                 </small>
               </div>
               <div>Author : {{ item.userId.username }}</div>
-              <span v-for="tag in item.tags" :key="tag" class="mr-1 badge badge-secondary">{{tag}}</span>
+              <div v-if="type =='question'">
+                <span v-for="tag in item.tags" :key="tag" class="mr-1 badge badge-secondary">{{tag}}</span>
+              </div>
             </div>
             <div class="d-flex justify-content-end align-items-center">
               <button
-                v-if="item.userId._id !== user._id "
+                v-if="item.userId._id !== user._id && !$route.params.id"
                 type="button"
                 class="btn btn-link btn-sm"
-                @click.prevent="seedetail(item._id)"
+                @click.prevent="$router.push(`/question/${item._id}`)"
+              >See Details</button>
+              <button
+                v-if="item.userId._id !== user._id && $route.params.id && type =='question'"
+                type="button"
+                class="btn btn-link btn-sm"
+                @click.prevent="$emit('newanswer', {_id: item._id})"
               >Answer This</button>
               <button
-                v-if="item.userId._id !== user._id && isLogin"
+                v-if="item.userId._id !== user._id && isLogin && upvoted"
                 type="button"
                 class="btn btn-success btn-sm"
-                @click="upvoteDownvote(i, 'upvotes')"
+                @click="upvoteDownvote('up')"
               >
                 <i class="fas fa-arrow-up"></i>
                 {{ item.upvotes.length }}
               </button>
               <button
-                v-if="item.userId._id !== user._id && isLogin"
+                v-if="item.userId._id !== user._id && isLogin && !upvoted"
                 type="button"
                 class="btn btn-outline-success btn-sm"
-                @click="upvoteDownvote(i, 'upvotes')"
+                @click="upvoteDownvote('up')"
               >
                 <i class="fas fa-arrow-up"></i>
                 {{ item.upvotes.length }}
               </button>
               <button
-                v-if="item.userId._id !== user._id && isLogin"
+                v-if="item.userId._id !== user._id && isLogin && downvoted"
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
-                @click="upvoteDownvote(i, 'downvotes')"
+                @click="upvoteDownvote('down')"
               >
                 <i class="fas fa-arrow-down"></i>
                 {{ item.downvotes.length }}
               </button>
               <button
-                v-if="item.userId._id !== user._id && isLogin"
+                v-if="item.userId._id !== user._id && isLogin && !downvoted"
                 type="button"
                 class="btn btn-outline-danger btn-sm ml-3"
-                @click="upvoteDownvote(i, 'downvotes')"
+                @click="upvoteDownvote('down')"
               >
                 <i class="fas fa-arrow-down"></i>
                 {{ item.downvotes.length }}
@@ -144,105 +156,87 @@ export default {
   created() {},
   components: {},
   computed: {
+    upvoted: function() {
+      let upvoted = false;
+      this.item.upvotes.forEach(like => {
+        if (like == this.user._id) {
+          upvoted = true;
+        }
+      });
+      return upvoted;
+    },
+    downvoted: function() {
+      let downvoted = false;
+      this.item.downvotes.forEach(dislike => {
+        if (dislike == this.user._id) {
+          downvoted = true;
+        }
+      });
+      return downvoted;
+    },
     countddown: function() {
-      let hours =
-        Math.abs(new Date()) - new Date(this.item.createdAt) / 36e5 / 1000;
+      var seconds = Math.floor(
+        (new Date() - new Date(this.item.createdAt)) / 1000
+      );
 
-      let result = "";
-      if (hours < 1) {
-        result = `${hours.toString()[2]}${hours.toString()[3]} minute`;
-      } else if (hours < 24) {
-        hours = Math.floor(hours);
-        result = `${hours} hour`;
-      } else if (hours < 168) {
-        hours = Math.floor(Math.abs(168 / hours));
-        result = `${hours} day`;
-      } else if (hours < 672) {
-        hours = Math.floor(Math.abs(672 / hours));
-        result = `${hours} week`;
-      } else {
-        hours = Math.ceil(Math.abs(8064 / hours));
-        result = `${hours} month`;
+      var interval = Math.floor(seconds / 31536000);
+
+      if (interval > 1) {
+        return interval + " years";
       }
-      return result;
+      interval = Math.floor(seconds / 2592000);
+      if (interval > 1) {
+        return interval + " months";
+      }
+      interval = Math.floor(seconds / 86400);
+      if (interval > 1) {
+        return interval + " days";
+      }
+      interval = Math.floor(seconds / 3600);
+      if (interval > 1) {
+        return interval + " hours";
+      }
+      interval = Math.floor(seconds / 60);
+      if (interval > 1) {
+        return interval + " minutes";
+      }
+      return Math.floor(seconds) + " seconds";
     },
     ...mapState(["user", "isLogin", "questions", "answers"])
   },
   methods: {
-    seedetail(id) {
-      this.$router.push(`/question/${id}`);
-    },
-    checkUD(i, type) {
-      let Question = this.questions[i];
-      Question[type].forEach(ud => {
-        if (ud === localStorage.getItem("user")) {
-          return true;
+    upvoteDownvote(action) {
+      let data = this.item;
+      let { upvoted, downvoted } = this;
+      if (upvoted && action == "down") {
+        data.upvotes.splice(data.upvotes.indexOf(this.user._id), 1);
+        data.downvotes.push(this.user._id);
+      } else if (downvoted && action == "up") {
+        data.downvotes.splice(data.downvotes.indexOf(this.user._id), 1);
+        data.upvotes.push(this.user._id);
+      } else if (upvoted && action == "up") {
+        data.upvotes.splice(data.upvotes.indexOf(this.user._id), 1);
+      } else if (downvoted && action == "down") {
+        data.downvotes.splice(data.downvotes.indexOf(this.user._id), 1);
+      } else if (!downvoted && !upvoted) {
+        if (action == "up") {
+          data.upvotes.push(this.user._id);
+        } else {
+          data.downvotes.push(this.user._id);
         }
-      });
-      return false;
+      }
+      if (this.type == "question") {
+        this.$store.dispatch("UPDATE_QUESTION_LIKE", {
+          _id: data._id,
+          data: data
+        });
+      } else {
+        this.$store.dispatch("UPDATE_ANSWER_LIKE", {
+          _id: data._id,
+          data: data
+        });
+      }
     },
-    // upvoteDownvote(i, type) {
-    //   let exist = false;
-    //   let Question = this.questions[i];
-    //   let cancel = "";
-    //   Question[type].forEach((ud, j) => {
-    //     if (ud === localStorage.getItem("user")) {
-    //       exist = true;
-    //       cancel = j;
-    //     }
-    //   });
-    //   if (exist === false) {
-    //     Question[type].push(localStorage.getItem("user"));
-    //     let opexist = false;
-    //     let opcancel = "";
-    //     let op = "";
-    //     if (type === "upvotes") {
-    //       Question.downvotes.forEach((ud, j) => {
-    //         if (ud === localStorage.getItem("user")) {
-    //           opexist = true;
-    //           opcancel = j;
-    //           op = "downvotes";
-    //         }
-    //       });
-    //     } else if (type === "downvotes") {
-    //       Question.upvotes.forEach((ud, j) => {
-    //         if (ud === localStorage.getItem("user")) {
-    //           opexist = true;
-    //           opcancel = j;
-    //           op = "upvotes";
-    //         }
-    //       });
-    //     }
-    //     if (opexist) {
-    //       Question[op].splice(opcancel, 1);
-    //     }
-    //   } else {
-    //     Question[type].splice(cancel, 1);
-    //   }
-    //   this.updateQuestion(Question);
-    // },
-    // updateQuestion(updValue) {
-    //   this.$axios({
-    //     method: "put",
-    //     url: "http://35.238.179.168/question/" + updValue._id,
-    //     headers: {
-    //       token: localStorage.getItem("token"),
-    //       id: localStorage.getItem("user")
-    //     },
-    //     data: updValue
-    //   })
-    //     .then(({ data }) => {
-    //       console.log(data);
-    //     })
-    //     .catch(err => {
-    //       swal.fire(
-    //         `Error : ${err.response.status}`,
-    //         `${err.response.data}`,
-    //         "success"
-    //       );
-    //       console.log(err);
-    //     });
-    // },
     edit(data) {
       if (this.type == "question") {
         this.$emit("editquestion", data);
@@ -264,7 +258,21 @@ export default {
           })
           .then(result => {
             if (result.value) {
-              this.$emit("delquestion", data);
+              this.$store
+                .dispatch("DELETE_QUESTION", this.item._id)
+                .then(res => {
+                  swal.fire(
+                    "success",
+                    `successfully delete your question with id : ${this.item._id} and titled ${this.item.title}`,
+                    "success"
+                  );
+                  this.$router.push("/");
+                })
+                .catch(err => {
+                  console.log(err);
+                  console.log(err.response.data);
+                  swal.fire("sorry", err.response.data.message, "error");
+                });
             }
           });
       } else {
@@ -280,7 +288,20 @@ export default {
           })
           .then(result => {
             if (result.value) {
-              this.$emit("deleteanswer", data);
+              this.$store
+                .dispatch("DELETE_ANSWER", this.item._id)
+                .then(res => {
+                  swal.fire(
+                    "success",
+                    `successfully delete your answer with id : ${this.item._id} and titled ${this.item.title}`,
+                    "success"
+                  );
+                })
+                .catch(err => {
+                  console.log(err);
+                  console.log(err.response.data);
+                  swal.fire("sorry", err.response.data.message, "error");
+                });
             }
           });
       }
