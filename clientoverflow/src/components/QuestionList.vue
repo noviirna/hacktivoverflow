@@ -1,15 +1,11 @@
 <template>
   <div class="container" :key="$store.isLogin">
-    <div v-for="(question, i) in $store.state.questions" :key="question._id" class="container">
+    <div class="container">
       <ul class="list-group">
         <li class="list-group-item">
           <div class="d-flex justify-content-end">{{ new Date(question.createdAt).toDateString() }}</div>
           <h4>
-            <a href @click.prevent="seedetail(question._id)" class="nav-link">
-              {{
-              question.title
-              }}
-            </a>
+            <a href @click.prevent="seedetail(question._id)" class="nav-link">{{ question.title }}</a>
           </h4>
           <p>
             {{
@@ -24,7 +20,7 @@
             <div>
               <div class="sm">
                 <small>
-                  {{ countTime(new Date(), new Date(question.createdAt)) }}
+                  {{ countddown }}
                   ago
                 </small>
               </div>
@@ -33,7 +29,7 @@
 
             <div class="d-flex justify-content-end align-items-center">
               <button
-                v-if="$store.state.isLogin && user !== question.userId"
+                v-if="$store.state.isLogin && user._id !== question.userId"
                 type="button"
                 class="btn btn-link btn-sm"
                 @click.prevent="seedetail(question._id)"
@@ -139,15 +135,13 @@
                 {{ question.downvotes.length }}
               </button>
               <button
-                v-if="
-                user === question.userId"
+                v-if="user === question.userId"
                 @click="edit(question)"
                 type="button"
                 class="btn btn-sm ml-3"
               >Edit</button>
               <button
-                v-if="
-                user === question.userId"
+                v-if="user === question.userId"
                 @click="del(question)"
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
@@ -156,7 +150,7 @@
           </div>
         </li>
       </ul>
-      <br>
+      <br />
     </div>
   </div>
 </template>
@@ -167,7 +161,7 @@ import swal from "sweetalert2";
 
 export default {
   name: "QuestionList",
-  props: ["allQuestions", "isLogin"],
+  props: ["question"],
   data() {
     return {
       user: localStorage.getItem("user"),
@@ -176,10 +170,41 @@ export default {
   },
   created() {},
   components: {},
+  computed: {
+    countddown: function() {
+      let hours =
+        Math.abs(new Date()) - new Date(this.question.createdAt) / 36e5;
+      console.log(new Date());
+      console.log(new Date(this.question.createdAt));
+
+      console.log(hours);
+
+      let result = "";
+      if (hours < 1) {
+        result = `${hours.toString()[2]}${hours.toString()[3]} minute`;
+      } else if (hours < 24) {
+        hours = Math.floor(hours);
+        result = `${hours} hour`;
+      } else if (hours < 168) {
+        hours = Math.floor(Math.abs(168 / hours));
+        result = `${hours} day`;
+      } else if (hours < 672) {
+        hours = Math.floor(Math.abs(672 / hours));
+        result = `${hours} week`;
+      } else {
+        hours = Math.ceil(Math.abs(8064 / hours));
+        result = `${hours} month`;
+        console.log(this.question.createdAt);
+      }
+      return result;
+    },
+    allQuestions: function() {
+      return this.$store.state.questions;
+    }
+  },
   methods: {
     seedetail(id) {
-      this.$router.push(`/answer/${id}`)
-
+      this.$router.push(`/answer/${id}`);
     },
     countTime(d1, d2) {
       let hours = Math.abs(d2 - d1) / 36e5;
@@ -207,7 +232,6 @@ export default {
     },
     upvoteDownvote(i, type) {
       let exist = false;
-      let allQuestions = this.allQuestions;
       let Question = this.allQuestions[i];
       let cancel = "";
       Question[type].forEach((ud, j) => {

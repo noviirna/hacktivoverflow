@@ -1,53 +1,39 @@
 <template>
   <div class="home">
-    <QuestionList
-      @edit="edit"
-      @del="del"
-      :allQuestions="allQuestions"
-      :isLogin="isLogin"
-    ></QuestionList>
+    <div v-for="question in questions" :key="question._id">
+      <QuestionList
+        @edit="$emit('edit')"
+        @del="$emit('del')"
+        :question="question"
+        :isLogin="isLogin"
+      ></QuestionList>
+    </div>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import QuestionList from "@/components/QuestionList.vue";
+import { mapState, mapActions } from "vuex";
 export default {
   name: "home",
   data() {
     return {
-      isLogin: this.$store.state.isLogin,
-      allQuestions: [],
       viewOne: ""
     };
   },
   components: {
     QuestionList
   },
+  computed: {
+    ...mapState(["questions", "isLogin"])
+  },
   created() {
-    this.getAllQuestions();
+    this.FETCH_ALL_QUESTIONS();
   },
   mounted() {},
   methods: {
-    getAllQuestions() {
-      this.$axios({
-        method: "get",
-        url: "http://35.238.179.168/questions"
-      })
-        .then(({ data }) => {
-          this.allQuestions = data;
-          this.$store.dispatch("questions", data);
-        })
-        .catch(({ response }) => {
-          console.log(response);
-        });
-    },
-    edit(e){
-      this.$emit("edit", e);
-    },
-    del(e){
-      this.$emit('del', e)
-    }
+    ...mapActions(["FETCH_ALL_QUESTIONS"])
   }
 };
 </script>

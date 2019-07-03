@@ -1,201 +1,144 @@
 <template>
   <div id="app">
-    <div>
-      <!-- Edit modal -->
-      <b-modal hide-footer title="Write your question here . . ." ref="editquestion-modal">
-        <div class="form-group">
-          <label for="email">Title ...</label>
-          <input
-            v-model="title"
-            type="title"
-            class="form-control"
-            id="title"
-            aria-describedby="emailHelp"
-            placeholder="Question Title . . ."
-          >
-        </div>
-        <div class="form-group">
-          <label for="description">Question ...</label>
-          <textarea
-            v-model="description"
-            type="description"
-            class="form-control"
-            id="description"
-            placeholder="Your Question . . ."
-          ></textarea>
-        </div>
-        <b-button @click="editquestion" class="mt-2" variant="outline-success" block>Edit Question</b-button>
-      </b-modal>
-      <!-- New Question modal -->
-      <b-modal hide-footer title="Write your question here . . ." ref="newquestion-modal">
-        <div class="form-group">
-          <label for="email">Title ...</label>
-          <input
-            v-model="title"
-            type="title"
-            class="form-control"
-            id="title"
-            aria-describedby="emailHelp"
-            placeholder="Question Title . . ."
-          >
-        </div>
-        <div class="form-group">
-          <label for="description">Question ...</label>
-          <textarea
-            v-model="description"
-            type="description"
-            class="form-control"
-            id="description"
-            placeholder="Your Question . . ."
-          ></textarea>
-        </div>
-        <b-button
-          @click="submitquestion"
-          class="mt-2"
-          variant="outline-success"
-          block
-        >Submit Question</b-button>
-      </b-modal>
-      <!-- Login modal -->
-      <b-modal hide-footer title="Log in to Participate" ref="login-modal">
-        <div class="form-group">
-          <label for="email">Email address</label>
-          <input
-            v-model="email"
-            type="email"
-            class="form-control"
-            id="email"
-            aria-describedby="emailHelp"
-            placeholder="Enter email"
-          >
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            v-model="password"
-            type="password"
-            class="form-control"
-            id="password"
-            placeholder="Enter password"
-          >
-        </div>
-        <b-button @click="login" class="mt-2" variant="outline-success" block>Log In</b-button>
-      </b-modal>
-      <!-- Register modal -->
-      <b-modal hide-footer title="New to us? Register to join us!" ref="register-modal">
-        <div class="form-group">
-          <label for="email">Username</label>
-          <input
-            v-model="username"
-            type="username"
-            class="form-control"
-            id="username"
-            placeholder="Enter username"
-          >
-        </div>
-        <div class="form-group">
-          <label for="email">Email address</label>
-          <input
-            v-model="email"
-            type="email"
-            class="form-control"
-            id="email"
-            aria-describedby="emailHelp"
-            placeholder="Enter email"
-          >
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            v-model="password"
-            type="password"
-            class="form-control"
-            placeholder="Enter password"
-          >
-        </div>
-        <b-button @click="register" class="mt-2" variant="outline-success" block>Log In</b-button>
-      </b-modal>
-      <!-- Navigation -->
-      <b-navbar toggleable="md" class="navbar navbar-expand-lg navbar-light bg-light">
-        <router-link to="/" class="navbar-brand">HacktivOverflow</router-link>
-        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-        <!-- Left aligned nav items -->
-        <b-navbar-nav class="my-auto" v-if="isLogin">
-          <small>
-            <a @click="showNewQuestionModal">
-              New Question
-              <i class="fas fa-plus"></i>
-            </a>
-          </small>
-        </b-navbar-nav>
-        <b-collapse id="nav-collapse" is-nav>
-          <!-- Right aligned nav items -->
-          <b-navbar-nav class="ml-auto">
-            <b-nav-item-dropdown right v-if="isLogin === false">
-              <!-- Using 'button-content' slot -->
-              <template slot="button-content">Log In / Register</template>
-              <b-dropdown-item>
-                <a href @click="showLoginModal">Login</a>
-              </b-dropdown-item>
-              <b-dropdown-item>
-                <a href @click="showRegisterModal">Register</a>
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
-            <b-nav-item-dropdown right v-if="isLogin">
-              <!-- Using 'button-content' slot -->
-              <template slot="button-content">user {{username}}</template>
-              <b-dropdown-item>
-                <a href @click.prevent="logout">Sign Out</a>
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
-          </b-navbar-nav>
-        </b-collapse>
-      </b-navbar>
-    </div>
-    <br>
-    <router-view
-      :key="$store.state.isLogin"
-      @edit="edit"
-      @del="del"
-    ></router-view>
+    <!-- Edit modal -->
+    <b-modal hide-footer title="Write your question here . . ." ref="editquestion-modal">
+      <div class="form-group">
+        <label for="email">Title ...</label>
+        <input
+          v-model="title"
+          type="title"
+          class="form-control"
+          id="title"
+          aria-describedby="emailHelp"
+          placeholder="Question Title . . ."
+        />
+      </div>
+      <div class="form-group">
+        <label for="description">Question ...</label>
+        <textarea
+          v-model="description"
+          type="description"
+          class="form-control"
+          id="description"
+          placeholder="Your Question . . ."
+        ></textarea>
+      </div>
+      <b-button @click="editquestion" class="mt-2" variant="outline-success" block>Edit Question</b-button>
+    </b-modal>
+    <!-- New Question modal -->
+    <b-modal hide-footer title="Write your question here . . ." ref="newquestion-modal">
+      <div class="form-group">
+        <label for="email">Title ...</label>
+        <input
+          v-model="title"
+          type="title"
+          class="form-control"
+          id="title"
+          aria-describedby="emailHelp"
+          placeholder="Question Title . . ."
+        />
+      </div>
+      <div class="form-group">
+        <label for="description">Question ...</label>
+        <textarea
+          v-model="description"
+          type="description"
+          class="form-control"
+          id="description"
+          placeholder="Your Question . . ."
+        ></textarea>
+      </div>
+      <b-button @click="submitquestion" class="mt-2" variant="outline-success" block>Submit Question</b-button>
+    </b-modal>
+    <!-- Login modal -->
+    <b-modal hide-footer title="Log in to Participate" ref="login-modal">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          v-model="email"
+          type="email"
+          class="form-control"
+          id="email"
+          aria-describedby="emailHelp"
+          placeholder="Enter email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          v-model="password"
+          type="password"
+          class="form-control"
+          id="password"
+          placeholder="Enter password"
+        />
+      </div>
+      <b-button @click="login" class="mt-2" variant="outline-success" block>Log In</b-button>
+    </b-modal>
+    <!-- Register modal -->
+    <b-modal hide-footer title="New to us? Register to join us!" ref="register-modal">
+      <div class="form-group">
+        <label for="email">Username</label>
+        <input
+          v-model="username"
+          type="username"
+          class="form-control"
+          id="username"
+          placeholder="Enter username"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          v-model="email"
+          type="email"
+          class="form-control"
+          id="email"
+          aria-describedby="emailHelp"
+          placeholder="Enter email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input v-model="password" type="password" class="form-control" placeholder="Enter password" />
+      </div>
+      <b-button @click="register" class="mt-2" variant="outline-success" block>Register</b-button>
+    </b-modal>
+    <navbar
+      @navnewquestion="showNewQuestionModal"
+      @navlogin="showLoginModal"
+      @navregister="showRegisterModal"
+    />
+    <router-view :key="$store.state.isLogin" @edit="showEditModal" @del="del" />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import { CronJob } from "cron";
+import navbar from "@/components/Navbar.vue";
 import swal from "sweetalert2";
 import { mapState } from "vuex";
 
 export default {
   name: "app",
+  components: { navbar },
   data() {
     return {
       title: "",
       description: "",
-      username: localStorage.getItem('user'),
+      username: "",
       email: "",
       password: "",
       questionId: ""
     };
   },
   created() {
-    console.log("created");
+    this.$store.dispatch("checkLogin");
   },
-  mounted() {
-    console.log("mounted");
-    this.checklogin();
-  },
-  computed: mapState(["isLogin"]),
+  mounted() {},
+  computed: mapState(["isLogin", "user"]),
   methods: {
-    edit(e) {
-      this.showEditModal();
-      this.title = e.title;
-      this.description = e.description;
+    del(e) {
       this.questionId = e._id;
-    },
-    del(e){
-      this.questionId = e._id
       this.$axios({
         method: "delete",
         url: "http://35.238.179.168/question/" + this.questionId,
@@ -205,8 +148,8 @@ export default {
         }
       })
         .then(({ data }) => {
-          this.questionId = ""
-          this.getAllQuestions();
+          this.questionId = "";
+          this.$store.dispatch("FETCH_ALL_QUESTIONS");
         })
         .catch(err => {
           swal.fire(
@@ -215,6 +158,108 @@ export default {
             "success"
           );
           console.log(JSON.stringify(err));
+        });
+    },
+    // MODAL RELATED
+    showEditModal(emit) {
+      this.title = emit.title;
+      this.description = emit.description;
+      this.questionId = emit._id;
+      this.$refs["editquestion-modal"].show();
+    },
+    hideEditModall() {
+      this.$refs["editquestion-modal"].hide();
+    },
+    showLoginModal() {
+      this.$refs["login-modal"].show();
+    },
+    hideLoginModal() {
+      this.$refs["login-modal"].hide();
+      this.username = "";
+      this.email = "";
+      this.password = "";
+    },
+    showNewQuestionModal() {
+      this.$refs["newquestion-modal"].show();
+    },
+    hideNewQuestionModal() {
+      this.$refs["newquestion-modal"].hide();
+    },
+    showRegisterModal() {
+      this.$refs["register-modal"].show();
+    },
+    hideRegisterModal() {
+      this.$refs["register-modal"].hide();
+      this.username = "";
+      this.email = "";
+      this.password = "";
+    },
+
+    // REGISTER LOGIN
+    register() {
+      let { username, email, password } = this;
+      if (username == "" || email == "" || password == "") {
+        swal.fire("please complete the form");
+      } else {
+        this.$store
+          .dispatch("registering", { username, email, password })
+          .then(data => {
+            swal.fire(
+              "success",
+              `success creating ${data.username}`,
+              "success"
+            );
+            this.hideRegisterModal();
+            setTimeout(() => {
+              this.email = data.email;
+              this.showLoginModal();
+            }, 500);
+          })
+          .catch(err => {
+            console.log(err);
+            console.log(JSON.stringify(err));
+            console.log(JSON.stringify(err.response));
+            swal.fire("sorry", err.response.data.message, "error");
+          });
+      }
+    },
+    login() {
+      if (this.email === "" || this.password === "") {
+        swal.fire("please complete the form");
+      } else {
+        this.$store
+          .dispatch("loggingIn", { email: this.email, password: this.password })
+          .then(data => {
+            swal.fire(`hello ${data.username}!`);
+            this.email = "";
+            this.password = "";
+            this.hideLoginModal();
+          })
+          .catch(err => {
+            swal.fire("sorry", err.response.data.message, "error");
+          });
+      }
+    },
+
+    submitquestion() {
+      this.$store
+        .dispatch("SUBMIT_QUESTION", {
+          userId: this.user._id,
+          title: this.title,
+          description: this.description,
+          upvotes: [],
+          downvotes: []
+        })
+        .then(() => {
+          this.title = "";
+          this.description = "";
+          this.hideNewQuestionModal();
+          swal.fire("success submitting new question");
+        })
+        .catch(err => {
+          console.log(err);
+          console.log(err.response.data);
+          swal.fire("sorry", err.response.data.message, "error");
         });
     },
     editquestion() {
@@ -233,8 +278,7 @@ export default {
         .then(({ data }) => {
           this.title = "";
           this.description = "";
-          this.getAllQuestions();
-          console.log(data);
+          this.$store.dispatch("FETCH_ALL_QUESTIONS");
           this.hideEditModall();
         })
         .catch(err => {
@@ -244,150 +288,6 @@ export default {
             "success"
           );
           console.log(JSON.stringify(err));
-        });
-    },
-    showEditModal() {
-      this.$refs["editquestion-modal"].show();
-    },
-    hideEditModall() {
-      this.$refs["editquestion-modal"].hide();
-    },
-    checklogin() {
-      if (localStorage.getItem("token")) {
-        this.$store.dispatch("isLogin", true);
-      }
-    },
-    showLoginModal() {
-      this.$refs["login-modal"].show();
-    },
-    hideLoginModal() {
-      this.$refs["login-modal"].hide();
-    },
-    login() {
-      if (this.email === "" || this.password === "") {
-        swal.fire("please complete the form");
-      } else {
-        this.$axios({
-          method: "post",
-          url: "http://35.238.179.168/login",
-          data: {
-            email: this.email,
-            password: this.password
-          }
-        })
-          .then(({ data }) => {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", data.user);
-            this.$store.dispatch("isLogin", true);
-            this.username = "";
-            this.email = "";
-            this.password = "";
-            this.hideLoginModal();
-          })
-          .catch(err => {
-            this.hideLoginModal();
-            swal.fire("password / email wrong");
-            console.log(err);
-          });
-      }
-    },
-    showNewQuestionModal() {
-      this.$refs["newquestion-modal"].show();
-    },
-    hideNewQuestionModal() {
-      this.$refs["newquestion-modal"].hide();
-    },
-    showRegisterModal() {
-      this.$refs["register-modal"].show();
-    },
-    hideRegisterModal() {
-      this.$refs["register-modal"].hide();
-    },
-    register() {
-      if (this.email === "" || this.password === "") {
-        swal.fire("please complete the form");
-      } else {
-        this.$axios({
-          method: "post",
-          url: "http://35.238.179.168/register",
-          data: {
-            username: this.user,
-            email: this.email,
-            password: this.password
-          }
-        })
-          .then(({ data }) => {
-            this.username = "";
-            this.password = "";
-            swal.fire(
-              "success",
-              `success creating ${data.username}`,
-              "success"
-            );
-            this.hideRegisterModal();
-            setTimeout(() => {
-              this.showLoginModal();
-            }, 500);
-          })
-          .catch(({ response }) => {
-            this.hideLoginModal();
-            if (response.status === 400) {
-              swal.fire("error", response.data.message, "error");
-            } else {
-              swal.fire("error", "internal server error", "error");
-            }
-            setTimeout(() => {
-              this.$router.go(0);
-            }, 1000);
-            console.log(response);
-          });
-      }
-    },
-    logout() {
-      this.$store.dispatch("isLogin", false);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.$router.replace("/");
-    },
-    getAllQuestions() {
-      this.$axios({
-        method: "get",
-        url: "http://35.238.179.168/questions"
-      })
-        .then(({ data }) => {
-          this.allQuestions = data;
-          this.$store.dispatch("questions", data);
-        })
-        .catch(({ response }) => {
-          console.log(response);
-        });
-    },
-    submitquestion() {
-      this.$axios({
-        method: "post",
-        url: "http://35.238.179.168/question",
-        headers: {
-          token: localStorage.getItem("token"),
-          id: localStorage.getItem("user")
-        },
-        data: {
-          title: this.title,
-          description: this.description,
-          upvotes: [],
-          downvotes: [],
-          userId: localStorage.getItem("user")
-        }
-      })
-        .then(({ data }) => {
-          console.log(data);
-          this.title = "";
-          this.description = "";
-          this.hideNewQuestionModal();
-          this.getAllQuestions();
-          this.$router.push("/")
-        })
-        .catch(err => {
-          console.log(err);
         });
     }
   }

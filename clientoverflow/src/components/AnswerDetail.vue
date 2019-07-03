@@ -1,7 +1,11 @@
 <template>
   <div class="answerdetail">
     <!-- New Answer modal -->
-    <b-modal hide-footer title="Write your answer here . . ." ref="newanswer-modal">
+    <b-modal
+      hide-footer
+      title="Write your answer here . . ."
+      ref="newanswer-modal"
+    >
       <div class="form-group">
         <label for="email">Title ...</label>
         <input
@@ -11,7 +15,7 @@
           id="title"
           aria-describedby="emailHelp"
           placeholder="Answer Title . . ."
-        >
+        />
       </div>
       <div class="form-group">
         <label for="description">Answer ...</label>
@@ -23,11 +27,21 @@
           placeholder="Your Answer . . ."
         ></textarea>
       </div>
-      <b-button @click="submitanswer" class="mt-2" variant="outline-success" block>Submit Answer</b-button>
+      <b-button
+        @click="submitanswer"
+        class="mt-2"
+        variant="outline-success"
+        block
+        >Submit Answer</b-button
+      >
     </b-modal>
-    <br>
+    <br />
     <!-- Edit Answer modal -->
-    <b-modal hide-footer title="Write your answer here . . ." ref="editanswer-modal">
+    <b-modal
+      hide-footer
+      title="Write your answer here . . ."
+      ref="editanswer-modal"
+    >
       <div class="form-group">
         <label for="email">Title ...</label>
         <input
@@ -37,7 +51,7 @@
           id="title"
           aria-describedby="emailHelp"
           placeholder="Answer Title . . ."
-        >
+        />
       </div>
       <div class="form-group">
         <label for="description">Answer ...</label>
@@ -49,7 +63,13 @@
           placeholder="Your Answer . . ."
         ></textarea>
       </div>
-      <b-button @click="submitupdate(updtarget)" class="mt-2" variant="outline-success" block>Update Answer</b-button>
+      <b-button
+        @click="submitupdate(updtarget)"
+        class="mt-2"
+        variant="outline-success"
+        block
+        >Update Answer</b-button
+      >
     </b-modal>
     <!-- container question-->
     <div class="container">
@@ -58,20 +78,20 @@
       </div>
       <ul class="list-group">
         <li class="list-group-item">
-          <div class="d-flex justify-content-end">{{ new Date(question.createdAt).toDateString() }}</div>
+          <div class="d-flex justify-content-end">
+            {{ new Date(question.createdAt).toDateString() }}
+          </div>
           <h4>
             <a class="nav-link">
-              {{
-              question.title
-              }}
+              {{ question.title }}
             </a>
           </h4>
           <p>
             {{
-            question.description
-            .split()
-            .slice(0, 100)
-            .join(",")
+              question.description
+                .split()
+                .slice(0, 100)
+                .join(",")
             }}
             . . .
           </p>
@@ -92,7 +112,9 @@
                 type="button"
                 class="btn btn-link btn-sm"
                 @click.prevent="showanswerform"
-              >Answer This</button>
+              >
+                Answer This
+              </button>
               <button
                 v-if="
                   question.upvotes.indexOf(user) > -1 && $store.state.isLogin
@@ -204,21 +226,25 @@
         <h3>The answers . . .</h3>
       </div>
       <ul class="list-group">
-        <li v-for="(answer, i) in answers" :key="answer._id" class="list-group-item">
-          <div class="d-flex justify-content-end">{{ new Date(question.createdAt).toDateString() }}</div>
+        <li
+          v-for="(answer, i) in answers"
+          :key="answer._id"
+          class="list-group-item"
+        >
+          <div class="d-flex justify-content-end">
+            {{ new Date(question.createdAt).toDateString() }}
+          </div>
           <h4>
             <a class="nav-link">
-              {{
-              answer.title
-              }}
+              {{ answer.title }}
             </a>
           </h4>
           <p>
             {{
-            answer.description
-            .split()
-            .slice(0, 100)
-            .join(",")
+              answer.description
+                .split()
+                .slice(0, 100)
+                .join(",")
             }}
             . . .
           </p>
@@ -235,9 +261,7 @@
 
             <div class="d-flex justify-content-end align-items-center">
               <button
-                v-if="
-                  answer.upvotes.indexOf(user) > -1 && $store.state.isLogin
-                "
+                v-if="answer.upvotes.indexOf(user) > -1 && $store.state.isLogin"
                 type="button"
                 class="btn btn-success btn-sm"
                 @click="upvoteDownvote(i, 'upvotes')"
@@ -335,19 +359,21 @@
                 {{ answer.downvotes.length }}
               </button>
               <button
-                v-if="
-                user === answer.userId"
+                v-if="user === answer.userId"
                 @click="editanswer(answer)"
                 type="button"
                 class="btn btn-sm ml-3"
-              >Edit</button>
+              >
+                Edit
+              </button>
               <button
-                v-if="
-                user === answer.userId"
+                v-if="user === answer.userId"
                 @click="delanswer(answer)"
                 type="button"
                 class="btn btn-danger btn-sm ml-3"
-              >delete</button>
+              >
+                delete
+              </button>
             </div>
           </div>
         </li>
@@ -357,7 +383,7 @@
 </template>
 
 <script>
-import swal from 'sweetalert2'
+import swal from "sweetalert2";
 export default {
   name: "answerdetail",
   props: [],
@@ -380,17 +406,16 @@ export default {
     this.getAllAnswer();
   },
   methods: {
-    submitupdate(e){
-      e.title = this.answertitle
-      e.description = this.answerdescription
-      this.updateAnswer(e)
+    submitupdate(e) {
+      e.title = this.answertitle;
+      e.description = this.answerdescription;
+      this.updateAnswer(e);
     },
-    editanswer(e){
-    console.log("munculin modal")
-    this.updtarget = e
-    this.answertitle = e.title,
-    this.answerdescription = e.description
-    this.showeditform();
+    editanswer(e) {
+      console.log("munculin modal");
+      this.updtarget = e;
+      (this.answertitle = e.title), (this.answerdescription = e.description);
+      this.showeditform();
     },
     showeditform() {
       this.$refs["editanswer-modal"].show();
@@ -398,10 +423,10 @@ export default {
     hideeditform() {
       this.$refs["editanswer-modal"].hide();
     },
-    ud(e, type){
+    ud(e, type) {
       let exist = false;
       let cancel = "";
-      console.log(e)
+      console.log(e);
       e[type].forEach((ud, j) => {
         if (ud === localStorage.getItem("user")) {
           exist = true;
@@ -452,12 +477,12 @@ export default {
           console.log(data);
         })
         .catch(err => {
-          this.getQuestion()
-          this.getAllAnswer()
+          this.getQuestion();
+          this.getAllAnswer();
         });
     },
     delanswer(e) {
-      console.log("delete")
+      console.log("delete");
       swal
         .fire({
           title: "Are you sure?",
@@ -479,8 +504,8 @@ export default {
               }
             })
               .then(({ data }) => {
-                this.getAllAnswer()
-                this.getQuestion()
+                this.getAllAnswer();
+                this.getQuestion();
               })
               .catch(err => {
                 swal.fire(
@@ -515,11 +540,11 @@ export default {
       })
         .then(({ data }) => {
           console.log(data);
-          this.getAllAnswer()
-          this.getQuestion()
-          this.answertitle = ""
-          this.answerdescription = ""
-          this.hideanswerform()
+          this.getAllAnswer();
+          this.getQuestion();
+          this.answertitle = "";
+          this.answerdescription = "";
+          this.hideanswerform();
         })
         .catch(err => {
           console.log(JSON.stringify(err));
@@ -627,7 +652,7 @@ export default {
         .then(({ data }) => {
           console.log(data);
           this.getAllAnswer();
-          this.hideeditform()
+          this.hideeditform();
         })
         .catch(err => {
           swal.fire(
