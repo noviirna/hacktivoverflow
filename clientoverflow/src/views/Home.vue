@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="col-12 mx-0">
-      <b-tabs content-class="border border-top-0 pt-3" justified>
+      <b-tabs v-if="isLogin" content-class="border border-top-0 pt-3" justified>
         <b-tab title="Feeds" active>
           <div v-for="question in questions" :key="question._id">
             <QuestionList
@@ -34,18 +34,32 @@
             ></QuestionList>
           </div>
         </b-tab>
-        <div v-if="isLogin">
-          <b-tab v-for="item in filters" :key="item.tag" :title="'Tagged: '+item.tag">
-            <div v-for="question in item.questions" :key="question._id">
-              <QuestionList
-                @editquestion="$emit('editquestion', question)"
-                @delquestion="$emit('delquestion', question)"
-                :item="question"
-                :type="'question'"
-              ></QuestionList>
-            </div>
-          </b-tab>
-        </div>
+        <b-tab
+          v-for="item in filters"
+          :key="item.tag"
+          :title="'Tagged: '+item.tag +'('+item.questions.length+')'"
+        >
+          <div v-for="question in item.questions" :key="question._id">
+            <QuestionList
+              @editquestion="$emit('editquestion', question)"
+              @delquestion="$emit('delquestion', question)"
+              :item="question"
+              :type="'question'"
+            ></QuestionList>
+          </div>
+        </b-tab>
+      </b-tabs>
+      <b-tabs v-if="!isLogin" content-class="border border-top-0 pt-3" justified>
+        <b-tab title="Feeds" active>
+          <div v-for="question in questions" :key="question._id">
+            <QuestionList
+              @editquestion="$emit('editquestion', question)"
+              @delquestion="$emit('delquestion', question)"
+              :item="question"
+              :type="'question'"
+            ></QuestionList>
+          </div>
+        </b-tab>
       </b-tabs>
     </div>
   </div>

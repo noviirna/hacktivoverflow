@@ -42,13 +42,39 @@
         <h3>The question . . .</h3>
       </div>
       <list
+        @loginfirst="$emit('loginfirst')"
         @editquestion="$emit('editquestion', question)"
         @newanswer="showanswerform"
         :item="question"
         :type="'question'"
       ></list>
       <div class="container my-3">
-        <h3>The answers</h3>
+        <h3 v-if="answers.length > 0">The answers</h3>
+        <h3 v-if="answers.length == 0 && isLogin && question.userId._id !== user._id">
+          No one answered this, be the first one to answer this
+          <a
+            href
+            @click.prevent="showanswerform"
+          >Click Here</a>
+ contribute with your answer
+        </h3>
+        <h3 v-if="answers.length == 0 && isLogin && question.userId._id == user._id">
+          <center>
+            <span class="badge badge-info p-3">
+              No one have answered this&nbsp;
+              <i class="fa fa-info border p-3 rounded-circle"></i>
+            </span>
+          </center>
+        </h3>
+        <h3 v-if="answers.length == 0 && !isLogin">
+          <center>
+            No one answered this, be the first one to answer this
+            <a
+              href
+              @click.prevent="$emit('loginfirst')"
+            >Click Here</a> contribute with your answer
+          </center>
+        </h3>
       </div>
       <div v-for="answer in $store.state.answers" :key="answer._id">
         <list :item="answer" :type="'answer'" @editanswer="showanswerform"></list>
@@ -83,7 +109,7 @@ export default {
   },
   mounted() {},
   computed: {
-    ...mapState(["questions", "user", "answers"]),
+    ...mapState(["questions", "user", "answers", "isLogin"]),
     question: function() {
       let question = undefined;
       this.questions.forEach(q => {

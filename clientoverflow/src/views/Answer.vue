@@ -1,7 +1,11 @@
 <template>
   <div class="answer">
     <div v-if="$route.params.id">
-      <questiondetail @editquestion="emitedit" @delquestion="emitdelete"></questiondetail>
+      <questiondetail
+        @editquestion="emitedit"
+        @delquestion="emitdelete"
+        @loginfirst="$emit('loginfirst')"
+      ></questiondetail>
     </div>
     <router-view v-if="!$route.params.id"></router-view>
   </div>

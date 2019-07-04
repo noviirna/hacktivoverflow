@@ -120,7 +120,7 @@
       @navlogin="showLoginModal"
       @navregister="showRegisterModal"
     />
-    <router-view @editquestion="showQuestionModal" />
+    <router-view @editquestion="showQuestionModal" @loginfirst="showLoginModal" />
   </div>
 </template>
 
@@ -290,6 +290,7 @@ export default {
           .then(() => {
             this.hideQuestionModal();
             swal.fire("success submitting new question");
+            this.$router.push("/");
           })
           .catch(err => {
             console.log(err);

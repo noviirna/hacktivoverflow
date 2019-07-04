@@ -74,7 +74,7 @@
               v-if="item.userId._id !== user._id && $route.params.id && type =='question' && !isLogin"
               type="button"
               class="btn btn-link btn-sm"
-              @click.prevent="loginwarning"
+              @click.prevent="$emit('loginfirst')"
             >Answer This</button>
             <button
               v-if="item.userId._id !== user._id && isLogin && upvoted"
@@ -210,13 +210,6 @@ export default {
     ...mapState(["user", "isLogin", "questions", "answers"])
   },
   methods: {
-    loginwarning() {
-      swal.fire(
-        "Info",
-        "Log in first to access this! If you are new to us, you can register by clicking register/login tab on the navbar above!",
-        "info"
-      );
-    },
     addWT(tag) {
       swal
         .fire({
