@@ -1,148 +1,178 @@
 <template>
-  <div class="container" :key="$store.isLogin">
-    <div class="container">
-      <ul class="list-group">
-        <li class="list-group-item">
-          <div class="d-flex justify-content-end">{{ new Date(item.createdAt) }}</div>
-          <h4>
-            <a
-              href
-              @click.prevent="$router.push(`/question/${item._id}`)"
-              class="nav-link"
-            >{{ item.title }}</a>
-          </h4>
-          <p>
+  <div class="container-fluid" :key="$store.isLogin">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <div class="row d-flex">
+          <div v-if="type!=='question'" class="ml-3 mr-auto">
+            <span class="badge badge-success p-1">Answer</span>
+          </div>
+          <div v-if="type=='question'" class="ml-3 mr-auto">
+            <span class="badge badge-warning p-1">
+              <i class="fa fa-question border rounded-circle p-1"></i>
+              <span v-if="$route.params.id && answers.length > 0">&emsp;Answered</span>
+            </span>
+          </div>
+          <div class="ml-auto">{{ new Date(item.createdAt) }}</div>
+        </div>
+        <h4 class="m-0 p-0">
+          <a
+            v-if="type == 'question'"
+            href
+            @click.prevent="$router.push(`/question/${item._id}`)"
+            class="nav-link mx-0 my-1 p-0"
+          >{{ item.title }}</a>
+          <a v-if="type !== 'question'" class="nav-link mx-0 my-1 p-0">{{ item.title }}</a>
+        </h4>
+        <div class="mt-3">
+          <small v-if="!$route.params.id && type == 'question'">snippet of question:</small>
+          <p v-if="!$route.params.id">
             {{
             item.description
             .split()
             .slice(0, 100)
             .join(",")
             }}
-            . . .
+            ...
           </p>
-          <div class="d-flex justify-content-between">
-            <div>
-              <div class="sm">
-                <small>
-                  {{ countddown }}
-                  ago
-                </small>
-              </div>
-              <div>Author : {{ item.userId.username }}</div>
-              <div v-if="type =='question'">
-                <span v-for="tag in item.tags" :key="tag" class="mr-1 badge badge-secondary">{{tag}}</span>
-              </div>
+          <p v-if="$route.params.id">
+            {{
+            item.description
+            }}
+          </p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="sm">
+              <small v-if="type == 'question'">Asked : {{ countddown }}</small>
+              <small v-if="type !== 'question'">Answered : {{ countddown }}</small>
             </div>
-            <div class="d-flex justify-content-end align-items-center">
-              <button
-                v-if="item.userId._id !== user._id && !$route.params.id"
-                type="button"
-                class="btn btn-link btn-sm"
-                @click.prevent="$router.push(`/question/${item._id}`)"
-              >See Details</button>
-              <button
-                v-if="item.userId._id !== user._id && $route.params.id && type =='question'"
-                type="button"
-                class="btn btn-link btn-sm"
-                @click.prevent="$emit('newanswer', {_id: item._id})"
-              >Answer This</button>
-              <button
-                v-if="item.userId._id !== user._id && isLogin && upvoted"
-                type="button"
-                class="btn btn-success btn-sm"
-                @click="upvoteDownvote('up')"
-              >
-                <i class="fas fa-arrow-up"></i>
-                {{ item.upvotes.length }}
-              </button>
-              <button
-                v-if="item.userId._id !== user._id && isLogin && !upvoted"
-                type="button"
-                class="btn btn-outline-success btn-sm"
-                @click="upvoteDownvote('up')"
-              >
-                <i class="fas fa-arrow-up"></i>
-                {{ item.upvotes.length }}
-              </button>
-              <button
-                v-if="item.userId._id !== user._id && isLogin && downvoted"
-                type="button"
-                class="btn btn-danger btn-sm ml-3"
-                @click="upvoteDownvote('down')"
-              >
-                <i class="fas fa-arrow-down"></i>
-                {{ item.downvotes.length }}
-              </button>
-              <button
-                v-if="item.userId._id !== user._id && isLogin && !downvoted"
-                type="button"
-                class="btn btn-outline-danger btn-sm ml-3"
-                @click="upvoteDownvote('down')"
-              >
-                <i class="fas fa-arrow-down"></i>
-                {{ item.downvotes.length }}
-              </button>
-
-              <button
-                v-if="item.userId._id === user._id && item.upvotes.length > 0"
-                type="button"
-                class="btn btn-secondary btn-sm"
-                disabled
-              >
-                <i class="fas fa-arrow-up"></i>
-                {{ item.upvotes.length }}
-              </button>
-              <button
-                v-if="(item.userId._id === user._id && item.upvotes.length == 0) || !isLogin"
-                type="button"
-                class="btn btn-outline-secondary btn-sm"
-                disabled
-              >
-                <i class="fas fa-arrow-up"></i>
-                {{ item.upvotes.length }}
-              </button>
-              <button
-                v-if="item.userId._id === user._id && item.downvotes.length > 0"
-                type="button"
-                class="btn btn-danger btn-sm ml-3"
-                disabled
-              >
-                <i class="fas fa-arrow-down"></i>
-                {{ item.downvotes.length }}
-              </button>
-              <button
-                v-if="(item.userId._id === user._id && item.downvotes.length == 0) || !isLogin"
-                type="button"
-                class="btn btn-outline-primary btn-sm ml-3"
-                disabled
-              >
-                <i class="fas fa-arrow-down"></i>
-                {{ item.downvotes.length }}
-              </button>
-
-              <button
-                v-if="item.userId._id === user._id"
-                @click="edit(item)"
-                type="button"
-                class="bt btn-secondary n btn-sm ml-3"
-              >Edit</button>
-              <button
-                v-if="item.userId._id === user._id && this.type=='question'"
-                @click="del(item)"
-                type="button"
-                class="btn btn-danger btn-sm ml-3"
-              >delete</button>
+            <div v-if="type == 'question'">Asked by : {{ item.userId.username }}</div>
+            <div v-if="type !== 'question'">Answered by : {{ item.userId.username }}</div>
+            <div v-if="type =='question'">
+              <span
+                @click="addWT(tag)"
+                v-for="tag in item.tags"
+                :key="tag"
+                class="mr-1 badge badge-secondary"
+              >{{tag}}</span>
             </div>
           </div>
-        </li>
-      </ul>
-      <br />
-    </div>
+          <div class="d-flex justify-content-end align-items-center">
+            <button
+              v-if="item.userId._id !== user._id && !$route.params.id"
+              type="button"
+              class="btn btn-link btn-sm"
+              @click.prevent="$router.push(`/question/${item._id}`)"
+            >See Details</button>
+            <button
+              v-if="item.userId._id !== user._id && $route.params.id && type =='question' && isLogin"
+              type="button"
+              class="btn btn-link btn-sm"
+              @click.prevent="$emit('newanswer', {_id: item._id})"
+            >Answer This</button>
+            <button
+              v-if="item.userId._id !== user._id && $route.params.id && type =='question' && !isLogin"
+              type="button"
+              class="btn btn-link btn-sm"
+              @click.prevent="loginwarning"
+            >Answer This</button>
+            <button
+              v-if="item.userId._id !== user._id && isLogin && upvoted"
+              type="button"
+              class="btn btn-success btn-sm"
+              @click="upvoteDownvote('up')"
+            >
+              <i class="fas fa-arrow-up"></i>
+              {{ item.upvotes.length }}
+            </button>
+            <button
+              v-if="item.userId._id !== user._id && isLogin && !upvoted"
+              type="button"
+              class="btn btn-outline-success btn-sm"
+              @click="upvoteDownvote('up')"
+            >
+              <i class="fas fa-arrow-up"></i>
+              {{ item.upvotes.length }}
+            </button>
+            <button
+              v-if="item.userId._id !== user._id && isLogin && downvoted"
+              type="button"
+              class="btn btn-danger btn-sm ml-3"
+              @click="upvoteDownvote('down')"
+            >
+              <i class="fas fa-arrow-down"></i>
+              {{ item.downvotes.length }}
+            </button>
+            <button
+              v-if="item.userId._id !== user._id && isLogin && !downvoted"
+              type="button"
+              class="btn btn-outline-danger btn-sm ml-3"
+              @click="upvoteDownvote('down')"
+            >
+              <i class="fas fa-arrow-down"></i>
+              {{ item.downvotes.length }}
+            </button>
+
+            <button
+              v-if="item.userId._id === user._id && item.upvotes.length > 0"
+              type="button"
+              class="btn btn-secondary btn-sm"
+              disabled
+            >
+              <i class="fas fa-arrow-up"></i>
+              {{ item.upvotes.length }}
+            </button>
+            <button
+              v-if="(item.userId._id === user._id && item.upvotes.length == 0) || !isLogin"
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              disabled
+            >
+              <i class="fas fa-arrow-up"></i>
+              {{ item.upvotes.length }}
+            </button>
+            <button
+              v-if="item.userId._id === user._id && item.downvotes.length > 0"
+              type="button"
+              class="btn btn-danger btn-sm ml-3"
+              disabled
+            >
+              <i class="fas fa-arrow-down"></i>
+              {{ item.downvotes.length }}
+            </button>
+            <button
+              v-if="(item.userId._id === user._id && item.downvotes.length == 0) || !isLogin"
+              type="button"
+              class="btn btn-outline-primary btn-sm ml-3"
+              disabled
+            >
+              <i class="fas fa-arrow-down"></i>
+              {{ item.downvotes.length }}
+            </button>
+
+            <button
+              v-if="item.userId._id === user._id"
+              @click="edit(item)"
+              type="button"
+              class="bt btn-secondary n btn-sm ml-3"
+            >Edit</button>
+            <button
+              v-if="item.userId._id === user._id && this.type=='question'"
+              @click="del(item)"
+              type="button"
+              class="btn btn-danger btn-sm ml-3"
+            >delete</button>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <br />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import moment from "moment";
 import swal from "sweetalert2";
 import { mapState } from "vuex";
 export default {
@@ -175,36 +205,38 @@ export default {
       return downvoted;
     },
     countddown: function() {
-      var seconds = Math.floor(
-        (new Date() - new Date(this.item.createdAt)) / 1000
-      );
-
-      var interval = Math.floor(seconds / 31536000);
-
-      if (interval > 1) {
-        return interval + " years";
-      }
-      interval = Math.floor(seconds / 2592000);
-      if (interval > 1) {
-        return interval + " months";
-      }
-      interval = Math.floor(seconds / 86400);
-      if (interval > 1) {
-        return interval + " days";
-      }
-      interval = Math.floor(seconds / 3600);
-      if (interval > 1) {
-        return interval + " hours";
-      }
-      interval = Math.floor(seconds / 60);
-      if (interval > 1) {
-        return interval + " minutes";
-      }
-      return Math.floor(seconds) + " seconds";
+      return moment(new Date(this.item.createdAt)).fromNow();
     },
     ...mapState(["user", "isLogin", "questions", "answers"])
   },
   methods: {
+    loginwarning() {
+      swal.fire(
+        "Info",
+        "Log in first to access this! If you are new to us, you can register by clicking register/login tab on the navbar above!",
+        "info"
+      );
+    },
+    addWT(tag) {
+      swal
+        .fire({
+          title: "Confirmation",
+          text: "Add to watched tags? Are you sure?",
+          type: "info",
+          confirmButtonText: "add it"
+        })
+        .then(result => {
+          if (result.value) {
+            let { watchedTags, _id } = this.user;
+            if (watchedTags.indexOf(tag) == -1) {
+              watchedTags.push(String(tag));
+              this.$store.dispatch("CHANGE_WT", { watchedTags });
+            } else {
+              swal.fire("you have already added that tag!");
+            }
+          }
+        });
+    },
     upvoteDownvote(action) {
       let data = this.item;
       let { upvoted, downvoted } = this;

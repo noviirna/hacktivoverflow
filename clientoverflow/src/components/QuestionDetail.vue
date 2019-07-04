@@ -133,14 +133,24 @@ export default {
           })
           .then(result => {
             if (result.value) {
-              this.$store.dispatch("SUBMIT_ANSWER", {
-                questionId: this.questionId,
-                title: this.title,
-                description: this.description,
-                userId: this.user._id,
-                upvotes: [],
-                downvotes: []
-              });
+              this.$store
+                .dispatch("SUBMIT_ANSWER", {
+                  questionId: this.questionId,
+                  title: this.title,
+                  description: this.description,
+                  userId: this.user._id,
+                  upvotes: [],
+                  downvotes: []
+                })
+                .then(res => {
+                  swal.fire("answer submitted");
+                  console.log(res);
+                })
+                .catch(err => {
+                  console.log(err);
+                  console.log(err.response.data);
+                  swal.fire("sorry", err.response.data.message, "error");
+                });
             }
           });
       }

@@ -43,6 +43,10 @@ export default new Vuex.Store({
     },
     questiondetail: (state, data) => {
       state.questiondetail = data;
+    },
+    SET_WT: (state, data) => {
+      state.user = data;
+      localStorage.user = JSON.stringify(data);
     }
   },
   actions: {
@@ -125,7 +129,8 @@ export default new Vuex.Store({
     questiondetail: ({ commit }, data) => {
       commit("questiondetail", data);
     },
-    SUBMIT_ANSWER: ({ commit, state }, data) => {
+    SUBMIT_ANSWER: ({ commit, state }, answer) => {
+      console.log(answer, "==========================");
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
@@ -133,7 +138,7 @@ export default new Vuex.Store({
           headers: {
             token: localStorage.token
           },
-          data: data
+          data: answer
         })
           .then(({ data }) => {
             commit("UNSHIFT_ANSWER", data);
@@ -325,6 +330,25 @@ export default new Vuex.Store({
           console.log(err);
           swal.fire("sorry", err.response.data.message, "error");
         });
+    },
+    CHANGE_WT: ({ commit, state }, watchedTags) => {
+      return new Promise(function(resolve, reject) {
+        axios({
+          method: "PUT",
+          url: state.serverURL + "/users/" + state.user._id,
+          headers: {
+            token: localStorage.getItem("token")
+          },
+          data: watchedTags
+        })
+          .then(({ data }) => {
+            commit("SET_WT", data);
+            resolve(data);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
     }
   }
 });

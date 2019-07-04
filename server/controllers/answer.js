@@ -30,6 +30,7 @@ class Controller {
           createdAt,
           updatedAt,
           tags,
+          userId,
           questionId: req.body.question
         });
       })
